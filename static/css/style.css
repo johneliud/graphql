@@ -8,7 +8,76 @@
 }
 
 :root {
-  --transition: all 0.3s ease;
+  --transition: all 0.5s ease;
   --text-color: #000;
   --dark-text-color: #fff;
+
+  --box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --dark-box-shadow: rgba(255, 255, 255, 0.35) 0px 5px 15px;
+}
+
+body {
+  flex: 1;
+  transition: var(--transition);
+}
+
+body.dark-theme {
+  background-color: var(--text-color);
+  color: var(--dark-text-color);
+}
+
+.header {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--dark-text-color);
+  box-shadow: var(--box-shadow);
+  padding: 1rem 2rem;
+  transition: var(--transition);
+}
+
+.header.dark-theme {
+  background-color: var(--text-color);
+  box-shadow: var(--dark-box-shadow)
+}
+
+.header .logo a {
+  text-decoration: none;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.header.dark-theme .logo a {
+  color: var(--dark-text-color);
+}
+
+.header .theme-toggler {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-toggler .sun {
+  display: none;
+}
+
+.theme-toggler.active .sun {
+  display: flex;
+}
+
+.theme-toggler.active .moon {
+  display: none;
+}
+
+.theme-toggler box-icon {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.header.dark-theme .theme-toggler box-icon {
+  fill: var(--dark-text-color);
 }

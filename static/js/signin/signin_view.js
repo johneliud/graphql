@@ -7,7 +7,7 @@ export async function renderSignInView() {
   signInContainer.innerHTML = `
   <p class="message-popup" id="message-popup"></p>
       <div class="form-container">
-        <h2>Sign In</h2>
+        <h2 class="container-header">Sign In</h2>
         <form action="/sign-in" id="signin-form" method="POST">
           <div class="input-group">
             <label for="email-or-username">Email or Username</label>

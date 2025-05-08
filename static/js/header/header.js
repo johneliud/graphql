@@ -1,4 +1,4 @@
-async function renderHeader() {
+export async function renderHeader() {
   const app = document.getElementById('app');
   const header = document.createElement('header');
   header.className = 'header';

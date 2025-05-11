@@ -1,4 +1,4 @@
-// import { displayPopup } from '../display_popup.js';
+import { displayPopup } from '../display_popup.js';
 
 export async function validateSignInFormData() {
   const signInForm = document.getElementById('signinForm');
@@ -29,7 +29,70 @@ export async function validateSignInFormData() {
         input.type = 'password';
       }
     } else {
-        console.error(`Input element with ID "${targetId}" not found.`)
+      console.error(`Input element with ID "${targetId}" not found.`);
     }
+
+    signInForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (messagePopup) {
+        messagePopup.textContent = '';
+        messagePopup.classList.remove('show', 'success', 'error');
+      }
+
+      const emailOrUsername = document.getElementById('emailOrUsername').value;
+      const password = document.getElementById('password').value;
+
+      console.log('Email or username: ', emailOrUsername);
+      console.log('Password: ', password);
+
+      if (emailOrUsername.trim().length === 0) {
+        displayPopup(
+          'Email or Username cannot be an empty field. Try again!',
+          false
+        );
+        return;
+      }
+
+      if (password.trim().length === 0) {
+        displayPopup('Password cannot be an empty field. Try again!', false);
+        return;
+      }
+
+      const signInData = {
+        emailOrUsername: emailOrUsername,
+        password: password,
+      };
+
+      try {
+        const response = await fetch(
+          'https://learn.zone01kisumu.ke/api/auth/signin',
+          {
+            method: 'POST',
+            headers: { Authorization: `Basic ${signInData}` },
+          }
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+          displayPopup(
+            result.message || 'Sign in unsuccessful. Try again!',
+            false
+          );
+          return;
+        } else if (result.success) {
+          displayPopup(result.message || 'Sign in successful!', true);
+          signInForm.reset();
+
+          setTimeout(() => {
+            location.reload();
+          }, 1500);
+        }
+      } catch (error) {
+        displayPopup('Failed authenticating user. Try again!', false);
+        return;
+      }
+    });
   });
 }

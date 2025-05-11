@@ -84,10 +84,8 @@ export async function validateSignInFormData() {
       if (!response.ok) {
         const error = await response.json();
         displayPopup(error.message || 'Sign in unsuccessful!', false);
-        return
+        return;
       }
-      
-      displayPopup('Sign in successful!', true);
 
       const data = await response.json();
       const jwt = data.jwt;
@@ -104,6 +102,8 @@ export async function validateSignInFormData() {
           })
         );
       }
+
+      displayPopup('Sign up successful!', true);
     } catch (error) {
       displayPopup(error.message, false);
       const signInBtn = document.querySelector('.sign-in-btn');

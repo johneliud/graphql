@@ -1,10 +1,11 @@
-import { renderHeader } from "./header/header.js";
-import { toggleTheme } from "./toggle_theme.js";
+import './profile.js';
+import { renderHeader } from './header/header.js';
+import { toggleTheme } from './toggle_theme.js';
 
 renderHeader();
 
 // Theme functionality
-const themeToggler = document.getElementById("themeToggler");
-themeToggler.addEventListener("click", toggleTheme);
+const themeToggler = document.getElementById('themeToggler');
+themeToggler.addEventListener('click', toggleTheme);
 
-toggleTheme();
+renderSignInView();

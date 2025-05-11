@@ -18,81 +18,90 @@ export async function validateSignInFormData() {
     '.toggle-password-visibility'
   );
 
-  passwordVisibilityBtn.addEventListener('click', (e) => {
-    const targetId = e.target.closest('button').dataset.target;
-    const input = document.getElementById(targetId);
+  if (passwordVisibilityBtn) {
+    passwordVisibilityBtn.addEventListener('click', (e) => {
+      const targetId = e.target.closest('button').dataset.target;
+      const input = document.getElementById(targetId);
 
-    if (input) {
-      if (input.type === 'password') {
-        input.type = 'text';
-      } else {
-        input.type = 'password';
-      }
-    } else {
-      console.error(`Input element with ID "${targetId}" not found.`);
-    }
-
-    signInForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      if (messagePopup) {
-        messagePopup.textContent = '';
-        messagePopup.classList.remove('show', 'success', 'error');
-      }
-
-      const emailOrUsername = document.getElementById('emailOrUsername').value;
-      const password = document.getElementById('password').value;
-
-      console.log('Email or username: ', emailOrUsername);
-      console.log('Password: ', password);
-
-      if (emailOrUsername.trim().length === 0) {
-        displayPopup(
-          'Email or Username cannot be an empty field. Try again!',
-          false
-        );
-        return;
-      }
-
-      if (password.trim().length === 0) {
-        displayPopup('Password cannot be an empty field. Try again!', false);
-        return;
-      }
-
-      const signInData = {
-        emailOrUsername: emailOrUsername,
-        password: password,
-      };
-
-      try {
-        const response = await fetch(
-          'https://learn.zone01kisumu.ke/api/auth/signin',
-          {
-            method: 'POST',
-            headers: { Authorization: `Basic ${signInData}` },
-          }
-        );
-
-        const result = await response.json();
-
-        if (!result.success) {
-          displayPopup(
-            result.message || 'Sign in unsuccessful. Try again!',
-            false
-          );
-          return;
-        } else if (result.success) {
-          displayPopup(result.message || 'Sign in successful!', true);
-          signInForm.reset();
-
-          setTimeout(() => {
-            location.reload();
-          }, 1500);
+      if (input) {
+        if (input.type === 'password') {
+          input.type = 'text';
+        } else {
+          input.type = 'password';
         }
-      } catch (error) {
-        displayPopup('Failed authenticating user. Try again!', false);
-        return;
+      } else {
+        console.error(`Input element with ID "${targetId}" not found.`);
       }
     });
+  }
+
+  signInForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (messagePopup) {
+      messagePopup.textContent = '';
+      messagePopup.classList.remove('show', 'success', 'error');
+    }
+
+    const emailOrUsername = document
+      .getElementById('emailOrUsername')
+      .value.trim();
+    const password = document.getElementById('password').value;
+
+    // Basic validation
+    if (!emailOrUsername) {
+      displayPopup('Email or Username cannot be empty', false);
+      return;
+    }
+
+    if (!password) {
+      displayPopup('Password cannot be empty', false);
+      return;
+    }
+
+    try {
+      const signInBtn = document.querySelector('.sign-in-btn');
+      if (signInBtn) {
+        signInBtn.disabled = true;
+        signInBtn.textContent = 'Signing in...';
+      }
+
+      // Create Basic Auth header
+      const authString = btoa(`${emailOrUsername}:${password}`);
+
+      // Make request to signin endpoint
+      const response = await fetch(
+        'https://learn.zone01kisumu.ke/api/auth/signin',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${authString}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        displayPopup(error.message || 'Sign in unsuccessful!', false);
+        throw new Error(error.message || 'Sign in unsuccessful!');
+      }
+
+      const data = await response.json();
+      const jwt = data.jwt;
+
+      // Store JWT in localStorage
+      localStorage.setItem('jwt', jwt);
+
+      // Redirect to profile page
+      window.location.href = '/profile';
+    } catch (error) {
+      displayPopup(error.message, false);
+      const signInBtn = document.querySelector('.sign-in-btn');
+      if (signInBtn) {
+        signInBtn.disabled = false;
+        signInBtn.textContent = 'Sign In';
+      }
+    }
   });
 }

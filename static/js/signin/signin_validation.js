@@ -84,8 +84,10 @@ export async function validateSignInFormData() {
       if (!response.ok) {
         const error = await response.json();
         displayPopup(error.message || 'Sign in unsuccessful!', false);
-        throw new Error(error.message || 'Sign in unsuccessful!');
+        return
       }
+      
+      displayPopup('Sign in successful!', true);
 
       const data = await response.json();
       const jwt = data.jwt;
@@ -93,8 +95,15 @@ export async function validateSignInFormData() {
       // Store JWT in localStorage
       localStorage.setItem('jwt', jwt);
 
-      // Redirect to profile page
-      window.location.href = '/profile';
+      // Instead of redirecting, dispatch an event to show profile
+      const app = document.getElementById('app');
+      if (app) {
+        app.dispatchEvent(
+          new CustomEvent('showProfile', {
+            detail: { jwt },
+          })
+        );
+      }
     } catch (error) {
       displayPopup(error.message, false);
       const signInBtn = document.querySelector('.sign-in-btn');

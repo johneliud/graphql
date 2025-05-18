@@ -2,18 +2,6 @@ import { LineGraph, BarGraph } from './svg_graphs.js';
 import { GRAPHQL_QUERY } from './graphql_query.js';
 import { displayPopup } from './display_popup.js';
 
-async function initializeApp() {
-  const app = document.getElementById('app');
-
-  // Check if user is logged in
-  if (!localStorage.getItem('jwt')) {
-    renderSignInView();
-    validateSignInFormData();
-  } else {
-    await renderProfileView();
-  }
-}
-
 // Handle profile view rendering
 async function renderProfileView() {
   const app = document.getElementById('app');
@@ -29,7 +17,7 @@ async function renderProfileView() {
   // Create layout with sidebar and content area
   const profileLayout = document.createElement('div');
   profileLayout.className = 'profile-layout';
-  
+
   // Create sidebar
   const sidebar = document.createElement('div');
   sidebar.className = 'sidebar';
@@ -42,11 +30,11 @@ async function renderProfileView() {
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
     </ul>
   `;
-  
+
   // Create main content area
   const profileContent = document.createElement('div');
   profileContent.className = 'profile-container';
-  
+
   // Show loading indicator
   profileContent.innerHTML = `
     <div class="loading-indicator">
@@ -54,12 +42,12 @@ async function renderProfileView() {
       <p>Loading your profile data...</p>
     </div>
   `;
-  
+
   // Add sidebar and content to layout
   profileLayout.appendChild(sidebar);
   profileLayout.appendChild(profileContent);
   app.appendChild(profileLayout);
-  
+
   // Load profile data after a short delay
   setTimeout(() => {
     // Replace loading indicator with profile content
@@ -103,19 +91,19 @@ async function renderProfileView() {
         </div>
       </div>
     `;
-    
+
     // Add event listeners for sidebar navigation
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    sidebarLinks.forEach(link => {
+    sidebarLinks.forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        
+
         // Remove active class from all links
-        sidebarLinks.forEach(l => l.classList.remove('active'));
-        
+        sidebarLinks.forEach((l) => l.classList.remove('active'));
+
         // Add active class to clicked link
         link.classList.add('active');
-        
+
         // Scroll to section
         const targetId = link.getAttribute('href').substring(1);
         const targetElement = document.getElementById(targetId);
@@ -124,8 +112,6 @@ async function renderProfileView() {
         }
       });
     });
-    
-    // Load profile data
     loadProfileData();
   }, 1000);
 }
@@ -228,9 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
     app.addEventListener('showProfile', async () => {
       await renderProfileView();
     });
-
-    // Initialize app on load
-    initializeApp();
   }
 });
 

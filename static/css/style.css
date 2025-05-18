@@ -578,11 +578,27 @@ body.dark-theme .project-card h4 {
 /* Skills Graph */
 .skills-container {
   margin-top: 20px;
+  width: 100%;
+  overflow-x: auto; /* Add horizontal scrolling if needed */
 }
 
 #skillsGraph {
-  min-height: 300px;
+  min-height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto;
+}
+
+/* Bar Graph */
+.bar-graph {
+  margin: 0 auto;
+}
+
+body.dark-theme .bar-graph line {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .bar-graph text {
+  fill: var(--dark-text-color);
 }

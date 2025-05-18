@@ -1,6 +1,6 @@
 import { LineGraph, BarGraph } from './svg_graphs.js';
 import { GRAPHQL_QUERY } from './graphql_query.js';
-import { displayPopup } from '../display_popup.js';
+import { displayPopup } from './display_popup.js';
 
 async function initializeApp() {
   const app = document.getElementById('app');

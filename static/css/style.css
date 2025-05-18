@@ -344,17 +344,37 @@ body.dark-theme .spinner {
   border-top-color: var(--primary-color);
 }
 
+.profile-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.dark-theme .profile-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-header h2 {
+  color: var(--primary-color);
+  font-size: 2rem;
+}
+
+body.dark-theme .profile-header h2 {
+  color: var(--dark-text-color);
+}
+
 /* Logout button */
 .logout-btn {
   background-color: #f44336;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 40px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
-  margin-bottom: 20px;
-  align-self: flex-end;
 }
 
 .logout-btn:hover {

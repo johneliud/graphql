@@ -81,15 +81,18 @@ export async function validateSignInFormData() {
         }
       );
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        const error = await response.json();
-        displayPopup(error.message || 'Sign in unsuccessful!', false);
-        return
+        displayPopup(data.message || 'Sign in unsuccessful!', false);
+        if (signInBtn) {
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign In';
+        }
+        return;
       }
       
       displayPopup('Sign in successful!', true);
-
-      const data = await response.json();
       const jwt = data.jwt;
 
       // Store JWT in localStorage
@@ -105,7 +108,7 @@ export async function validateSignInFormData() {
         );
       }
     } catch (error) {
-      displayPopup(error.message, false);
+      displayPopup(error.message || 'Error during sign in', false);
       const signInBtn = document.querySelector('.sign-in-btn');
       if (signInBtn) {
         signInBtn.disabled = false;

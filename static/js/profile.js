@@ -309,7 +309,20 @@ async function loadProfileData() {
           };
         });
         
-        const barGraph = new BarGraph(skillsData);
+        // Sort skills by amount in descending order
+        skillsData.sort((a, b) => b.count - a.count);
+        
+        // Use the enhanced BarGraph with options
+        const barGraph = new BarGraph(skillsData, {
+          width: 800, // Increased width to 800px
+          maxValue: 100, // Fixed maximum value of 100
+          gridLines: [0, 25, 50, 75, 100], // Grid lines at 0, 25, 50, 75, 100
+          colors: ['#3e3eff', '#4b7bec', '#3867d6', '#4b6584'], // Different colors for variety
+          height: 400, // Taller graph for better visibility
+          barSpacing: 20, // More space between bars
+          padding: 60 // Increased padding for better label visibility
+        });
+        
         skillsGraph.innerHTML = '';
         skillsGraph.appendChild(barGraph.render());
       } else {

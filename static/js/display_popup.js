@@ -1,5 +1,13 @@
 export function displayPopup(message, isSuccess) {
-  const messagePopup = document.getElementById('messagePopup');
+  let messagePopup = document.getElementById('messagePopup');
+  
+  // Create the popup element if it doesn't exist
+  if (!messagePopup) {
+    messagePopup = document.createElement('p');
+    messagePopup.id = 'messagePopup';
+    messagePopup.className = 'message-popup';
+    document.body.appendChild(messagePopup);
+  }
 
   messagePopup.textContent = message;
   messagePopup.classList.remove('success', 'error');

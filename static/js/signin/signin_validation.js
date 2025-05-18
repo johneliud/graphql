@@ -2,15 +2,9 @@ import { displayPopup } from '../display_popup.js';
 
 export async function validateSignInFormData() {
   const signInForm = document.getElementById('signinForm');
-  const messagePopup = document.getElementById('messagePopup');
 
   if (!signInForm) {
     console.error('Signin form not found');
-    return;
-  }
-
-  if (!messagePopup) {
-    console.error('Message popup not found');
     return;
   }
 
@@ -38,11 +32,6 @@ export async function validateSignInFormData() {
   signInForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (messagePopup) {
-      messagePopup.textContent = '';
-      messagePopup.classList.remove('show', 'success', 'error');
-    }
-
     const emailOrUsername = document
       .getElementById('emailOrUsername')
       .value.trim();
@@ -66,7 +55,7 @@ export async function validateSignInFormData() {
         signInBtn.textContent = 'Signing in...';
       }
 
-      // Create Basic Auth header
+      // Basic Auth header
       const authString = btoa(`${emailOrUsername}:${password}`);
 
       // Make request to signin endpoint
@@ -81,31 +70,37 @@ export async function validateSignInFormData() {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        displayPopup(error.message || 'Sign in unsuccessful!', false);
-        return
+        displayPopup(data.message || 'Sign in unsuccessful!', false);
+        if (signInBtn) {
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign In';
+        }
+        return;
       }
-      
+
       displayPopup('Sign in successful!', true);
 
-      const data = await response.json();
-      const jwt = data.jwt;
+      const jwt = typeof data === 'string' ? data : data.jwt;      
 
       // Store JWT in localStorage
-      localStorage.setItem('jwt', jwt);
-
-      // Instead of redirecting, dispatch an event to show profile
-      const app = document.getElementById('app');
-      if (app) {
-        app.dispatchEvent(
-          new CustomEvent('showProfile', {
-            detail: { jwt },
-          })
-        );
+      if (jwt) {
+        localStorage.setItem('jwt', jwt);
+        
+        // Dispatch event to show profile
+        const app = document.getElementById('app');
+        app.dispatchEvent(new CustomEvent('showProfile'));
+      } else {
+        displayPopup('No JWT received from server', false);
+        if (signInBtn) {
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign In';
+        }
       }
     } catch (error) {
-      displayPopup(error.message, false);
+      displayPopup(error.message || 'Error during sign in', false);
       const signInBtn = document.querySelector('.sign-in-btn');
       if (signInBtn) {
         signInBtn.disabled = false;

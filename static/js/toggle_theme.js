@@ -3,6 +3,11 @@ export async function toggleTheme() {
   const header = document.getElementById("header");
   const body = document.body;
 
+  if (!themeToggler || !header) {
+    console.error("Theme toggler or header element not found");
+    return;
+  }
+
   themeToggler.classList.toggle("active");
   header.classList.toggle("dark-theme");
   body.classList.toggle("dark-theme");
@@ -19,8 +24,17 @@ export async function toggleTheme() {
 document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
-    document.getElementById("themeToggler").classList.add("active");
-    document.getElementById("header").classList.add("dark-theme");
+    const themeToggler = document.getElementById("themeToggler");
+    const header = document.getElementById("header");
+    
+    if (themeToggler) {
+      themeToggler.classList.add("active");
+    }
+    
+    if (header) {
+      header.classList.add("dark-theme");
+    }
+    
     document.body.classList.add("dark-theme");
   }
 });

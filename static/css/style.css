@@ -24,6 +24,7 @@ button:hover {
 body {
   flex: 1;
   transition: var(--transition);
+  padding-top: 80px; /* Adjust for fixed header */
 }
 
 body.dark-theme {
@@ -31,6 +32,7 @@ body.dark-theme {
   color: var(--dark-text-color);
 }
 
+/* Fixed header */
 .header {
   width: 100%;
   height: 80px;
@@ -41,6 +43,10 @@ body.dark-theme {
   box-shadow: var(--box-shadow);
   padding: 1rem 2rem;
   transition: var(--transition);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
 }
 
 .header-controls {
@@ -351,19 +357,26 @@ body.dark-theme .spinner {
 }
 
 /* Sidebar styles */
-.profile-layout {
+.profile-container {
   display: flex;
-  width: 100%;
+  width: calc(100% - 280px);
+  height: calc(100vh - 100px);
   margin-top: 20px;
+  flex-direction: column;
 }
 
 .sidebar {
   width: 250px;
-  min-height: calc(100vh - 100px);
+  height: calc(100vh - 100px);
   background-color: var(--dark-text-color);
   box-shadow: var(--box-shadow);
+  border-radius: .5rem;
   padding: 2rem 1rem;
   transition: var(--transition);
+  position: fixed;
+  top: 100px;
+  left: 0;
+  overflow-y: auto;
 }
 
 body.dark-theme .sidebar {
@@ -415,8 +428,10 @@ body.dark-theme .sidebar-link {
   padding: 2rem;
   background-color: var(--dark-text-color);
   box-shadow: var(--box-shadow);
-  margin-left: 20px;
+  margin-left: 270px; /* sidebar width + margin */
   border-radius: 10px;
+  overflow-y: auto;
+  min-height: calc(100vh - 120px);
 }
 
 body.dark-theme .profile-container {

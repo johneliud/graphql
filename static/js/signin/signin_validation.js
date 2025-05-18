@@ -1,4 +1,5 @@
 import { displayPopup } from '../display_popup.js';
+import { renderProfileView } from '../profile.js';
 
 export async function validateSignInFormData() {
   const signInForm = document.getElementById('signinForm');
@@ -66,7 +67,7 @@ export async function validateSignInFormData() {
         signInBtn.textContent = 'Signing in...';
       }
 
-      // Create Basic Auth header
+      // Basic Auth header
       const authString = btoa(`${emailOrUsername}:${password}`);
 
       // Make request to signin endpoint
@@ -97,16 +98,7 @@ export async function validateSignInFormData() {
 
       // Store JWT in localStorage
       localStorage.setItem('jwt', jwt);
-
-      // Instead of redirecting, dispatch an event to show profile
-      const app = document.getElementById('app');
-      if (app) {
-        app.dispatchEvent(
-          new CustomEvent('showProfile', {
-            detail: { jwt },
-          })
-        );
-      }
+      renderProfileView();
     } catch (error) {
       displayPopup(error.message || 'Error during sign in', false);
       const signInBtn = document.querySelector('.sign-in-btn');

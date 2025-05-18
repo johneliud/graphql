@@ -284,9 +284,7 @@ async function loadProfileData() {
           const projectCard = document.createElement('div');
           projectCard.className = 'project-card';
           projectCard.innerHTML = `
-            <h4>${formatProjectName(projectName)}</h4>
-            <p><strong>Path:</strong> ${projectPath}</p>
-            <p><strong>Status:</strong> ${project.group.status}</p>
+            <p>${formatProjectName(projectName)}</p>
           `;
           
           completedProjectsGrid.appendChild(projectCard);
@@ -306,8 +304,8 @@ async function loadProfileData() {
                             skill.type.replace('skill_', '').slice(1);
           
           return {
-            status: skillName, // Using status as the label for BarGraph
-            count: skill.amount // Using count as the value for BarGraph
+            status: skillName,
+            count: skill.amount
           };
         });
         

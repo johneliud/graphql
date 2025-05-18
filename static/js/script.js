@@ -3,12 +3,11 @@ import { toggleTheme } from './toggle_theme.js';
 import { renderSignInView } from './signin/signin_view.js';
 import { validateSignInFormData } from './signin/signin_validation.js';
 import { isLoggedIn } from './validate_jwt.js';
+import './profile.js';
 
 function initApp() {
-  // Initialize header
   renderHeader();
 
-  // Theme functionality
   const themeToggler = document.getElementById('themeToggler');
   themeToggler.addEventListener('click', toggleTheme);
 

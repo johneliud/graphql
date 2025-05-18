@@ -73,7 +73,7 @@ export async function validateSignInFormData() {
       const data = await response.json();
 
       if (!response.ok) {
-        displayPopup(data.message || 'Sign in unsuccessful!', false);
+        displayPopup(data.message || 'Sign in unsuccessful! Check your credentials and try again.', false);
         if (signInBtn) {
           signInBtn.disabled = false;
           signInBtn.textContent = 'Sign In';

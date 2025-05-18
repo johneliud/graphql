@@ -27,6 +27,8 @@ async function renderProfileView() {
       <li><a href="#audit-stats" class="sidebar-link">Audit Statistics</a></li>
       <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
+      <li><a href="#completed-projects" class="sidebar-link">Completed Projects</a></li>
+      <li><a href="#skills" class="sidebar-link">Skills</a></li>
     </ul>
   `;
 
@@ -90,6 +92,20 @@ async function renderProfileView() {
             <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
           </div>
           <div id="projectGraph"></div>
+        </div>
+
+        <div id="completed-projects" class="profile-section">
+          <h3>Completed Projects</h3>
+          <div class="completed-projects-grid" id="completedProjectsGrid">
+            <p>Loading completed projects...</p>
+          </div>
+        </div>
+
+        <div id="skills" class="profile-section">
+          <h3>Skills</h3>
+          <div class="skills-container">
+            <div id="skillsGraph"></div>
+          </div>
         </div>
       </div>
     `;
@@ -254,18 +270,88 @@ async function loadProfileData() {
         projectGraph.innerHTML = '<p>No project data available</p>';
       }
     }
+
+    // Update completed projects section
+    const completedProjectsGrid = document.getElementById('completedProjectsGrid');
+    if (completedProjectsGrid) {
+      if (userData.completed_projects && userData.completed_projects.length > 0) {
+        completedProjectsGrid.innerHTML = '';
+        
+        userData.completed_projects.forEach(project => {
+          const projectPath = project.group.path;
+          const projectName = projectPath.split('/').pop(); // Get the last part of the path
+          
+          const projectCard = document.createElement('div');
+          projectCard.className = 'project-card';
+          projectCard.innerHTML = `
+            <p>${formatProjectName(projectName)}</p>
+          `;
+          
+          completedProjectsGrid.appendChild(projectCard);
+        });
+      } else {
+        completedProjectsGrid.innerHTML = '<p>No completed projects found.</p>';
+      }
+    }
+
+    // Update skills section
+    const skillsGraph = document.getElementById('skillsGraph');
+    if (skillsGraph) {
+      if (userData.skills && userData.skills.length > 0) {
+        const skillsData = userData.skills.map(skill => {
+          // Format skill type (remove "skill_" prefix and capitalize)
+          const skillName = skill.type.replace('skill_', '').charAt(0).toUpperCase() + 
+                            skill.type.replace('skill_', '').slice(1);
+          
+          return {
+            status: skillName,
+            count: skill.amount
+          };
+        });
+        
+        // Sort skills by amount in descending order
+        skillsData.sort((a, b) => b.count - a.count);
+        
+        // Use the enhanced BarGraph with options
+        const barGraph = new BarGraph(skillsData, {
+          width: 800, // Increased width to 800px
+          maxValue: 100, // Fixed maximum value of 100
+          gridLines: [0, 25, 50, 75, 100], // Grid lines at 0, 25, 50, 75, 100
+          colors: ['#3e3eff', '#4b7bec', '#3867d6', '#4b6584'], // Different colors for variety
+          height: 400, // Taller graph for better visibility
+          barSpacing: 20, // More space between bars
+          padding: 60 // Increased padding for better label visibility
+        });
+        
+        skillsGraph.innerHTML = '';
+        skillsGraph.appendChild(barGraph.render());
+      } else {
+        skillsGraph.innerHTML = '<p>No skills data available</p>';
+      }
+    }
   } catch (error) {
     displayPopup(error.message || 'Error loading profile data', false);
     console.error('Error loading profile data:', error);
   }
 }
 
-// Helper function to safely update element text content
 function updateElementText(elementId, text) {
   const element = document.getElementById(elementId);
   if (element) {
     element.textContent = text;
   }
+}
+
+function formatProjectName(name) {
+  // Replace hyphens and underscores with spaces
+  let formattedName = name.replace(/[-_]/g, ' ');
+  
+  // Capitalize each word
+  formattedName = formattedName.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+    
+  return formattedName;
 }
 
 // Listen for showProfile event

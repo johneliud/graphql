@@ -355,7 +355,7 @@ body.dark-theme .spinner {
   align-items: center;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
+  padding: 0 0 1rem;
 }
 
 body.dark-theme .profile-header {
@@ -365,6 +365,7 @@ body.dark-theme .profile-header {
 .profile-header h2 {
   color: var(--primary-color);
   font-size: 2rem;
+  margin-top: 1.5rem;
 }
 
 body.dark-theme .profile-header h2 {
@@ -376,6 +377,7 @@ body.dark-theme .profile-header h2 {
   background-color: #f44336;
   color: white;
   border: none;
+  font-size: 1.2rem;
   padding: 10px 40px;
   border-radius: 4px;
   cursor: pointer;
@@ -389,15 +391,14 @@ body.dark-theme .profile-header h2 {
 /* Sidebar styles */
 .profile-container {
   display: flex;
-  width: calc(100% - 280px);
-  height: calc(100vh - 100px);
+  height: calc(100% - 100px);
   margin-top: 20px;
   flex-direction: column;
   transition: var(--transition);
 }
 
 .sidebar {
-  width: 250px;
+  width: 300px;
   height: calc(100vh - 100px);
   background-color: var(--light-bg-color);
   color: var(--text-color);
@@ -457,13 +458,14 @@ body.dark-theme .sidebar-link {
 /* Profile container update */
 .profile-container {
   flex: 1;
+  width: 100% - 320px;
   padding: 2rem;
   background-color: var(--light-bg-color);
   color: var(--text-color);
   box-shadow: var(--box-shadow);
-  margin-left: 270px;
+  margin-left: 320px;
   border-radius: 10px;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   min-height: calc(100vh - 120px);
 }
 

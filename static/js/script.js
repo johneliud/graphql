@@ -21,6 +21,18 @@ function initApp() {
     renderSignInView();
     validateSignInFormData();
   }
+
+  // Listen for auth state changes to update the header
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'jwt') {
+      // Re-render header when JWT changes (login/logout)
+      const header = document.getElementById('header');
+      if (header) {
+        header.remove();
+      }
+      renderHeader();
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

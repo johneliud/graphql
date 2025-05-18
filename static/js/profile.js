@@ -102,8 +102,6 @@ async function renderProfileView() {
 
         sidebarLinks.forEach((l) => l.classList.remove('active'));
         link.classList.add('active');
-
-        // Scroll to section
         const targetId = link.getAttribute('href').substring(1);
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
@@ -126,12 +124,10 @@ async function loadProfileData() {
   }
 
   try {
-    if (jwt) {
-      console.log('Using JWT:', jwt.substring(0, 10) + '...');
-    } else {
+    if (!jwt) {
       console.log('JWT is missing or invalid');
     }
-    
+
     const response = await fetch(
       'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
       {
@@ -149,7 +145,7 @@ async function loadProfileData() {
     if (!response.ok) {
       const error = await response.json();
       displayPopup(error.message || 'Failed to load profile data', false);
-      
+
       // If unauthorized, clear token and redirect to sign in
       if (response.status === 401 || response.status === 403) {
         localStorage.removeItem('jwt');
@@ -160,12 +156,12 @@ async function loadProfileData() {
     }
 
     const data = await response.json();
-    
+
     // Check for GraphQL errors
     if (data.errors && data.errors.length > 0) {
       const errorMessage = data.errors[0].message;
       console.error('GraphQL Error:', errorMessage);
-      
+
       // If JWT verification failed, clear token and redirect to sign in
       if (errorMessage.includes('Could not verify JWT')) {
         localStorage.removeItem('jwt');
@@ -174,7 +170,7 @@ async function loadProfileData() {
         validateSignInFormData();
         return;
       }
-      
+
       displayPopup(errorMessage || 'Error in GraphQL response', false);
       return;
     }
@@ -185,6 +181,8 @@ async function loadProfileData() {
     }
 
     const userData = data.data.user;
+
+    console.log("userData: ", userData)
 
     // Update basic information
     document.getElementById('fullName').textContent = `${

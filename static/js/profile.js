@@ -3,6 +3,7 @@ import { GRAPHQL_QUERY } from './graphql_query.js';
 import { displayPopup } from './display_popup.js';
 import { renderSignInView } from './signin/signin_view.js';
 import { validateSignInFormData } from './signin/signin_validation.js';
+import { logout } from './validate_jwt.js';
 
 // Handle profile view rendering
 async function renderProfileView() {
@@ -49,8 +50,10 @@ async function renderProfileView() {
   setTimeout(() => {
     // Replace loading indicator with profile content
     profileContent.innerHTML = `
-      <h2>Welcome to Your Profile</h2>
-      <button id="logoutBtn" class="logout-btn">Log Out</button>
+      <div class="profile-header">
+        <h2>Welcome to Your Profile</h2>
+        <button id="logoutBtn" class="logout-btn">Log Out</button>
+      </div>
       <div class="profile-info">
         <div id="basic-info" class="profile-section">
           <h3>Basic Information</h3>
@@ -106,6 +109,14 @@ async function renderProfileView() {
         }
       });
     });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        logout();
+        window.location.reload();
+      });
+    }
 
     // Load the profile data
     loadProfileData();
@@ -180,9 +191,9 @@ async function loadProfileData() {
     console.log('userData: ', userData);
 
     // Update page title with user's name
-    const welcomeTitle = document.querySelector('.profile-container h2');
+    const welcomeTitle = document.querySelector('.profile-header h2');
     if (welcomeTitle) {
-      welcomeTitle.textContent = `Welcome, ${userData.firstName || 'User'} 😎!`;
+      welcomeTitle.textContent = `Welcome, ${userData.firstName || 'User'}!`;
     }
 
     // Update basic information

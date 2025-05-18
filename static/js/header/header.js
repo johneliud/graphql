@@ -1,3 +1,5 @@
+import { logout } from '../validate_jwt.js';
+
 export async function renderHeader() {
   const app = document.getElementById('app');
   const header = document.createElement('header');
@@ -29,14 +31,9 @@ export async function renderHeader() {
   // Add event listeners for navigation
   document.getElementById('homeLink').addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.reload();
   });
 
-  // Add logout button event listener if logged in
   if (isLoggedIn) {
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('jwt');
-      window.location.reload();
-    });
+    document.getElementById('logoutBtn').addEventListener('click', logout);
   }
 }

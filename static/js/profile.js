@@ -20,7 +20,7 @@ async function renderProfileView() {
 
   // Remove existing content
   const existingContent = document.querySelector(
-    '.signin-container, .profile-container, .about-container, .sidebar'
+    '.signin-container, .profile-container, .about-container, .sidebar, .profile-layout'
   );
   if (existingContent) {
     existingContent.remove();
@@ -165,10 +165,6 @@ async function loadProfileData() {
 
     const userData = data.data.user;
 
-    console.log(response);
-    console.log(data);
-    console.log(userData);
-
     // Update basic information
     document.getElementById('fullName').textContent = `${
       userData.firstName || ''
@@ -237,3 +233,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
   }
 });
+
+export { renderProfileView };

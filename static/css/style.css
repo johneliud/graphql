@@ -23,9 +23,9 @@ button:hover {
 }
 
 body {
-  flex: 1;
+  /* flex: 1; */
   transition: var(--transition);
-  padding-top: 80px; /* Adjust for fixed header */
+  padding-top: 80px;
   background-color: var(--light-bg-color);
   color: var(--text-color);
 }
@@ -33,6 +33,10 @@ body {
 body.dark-theme {
   background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
+}
+
+body.dark-theme text {
+  fill: var(--dark-text-color);
 }
 
 /* Fixed header */
@@ -351,6 +355,7 @@ body.dark-theme .spinner {
   align-items: center;
   margin-bottom: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
 }
 
 body.dark-theme .profile-header {
@@ -388,6 +393,7 @@ body.dark-theme .profile-header h2 {
   height: calc(100vh - 100px);
   margin-top: 20px;
   flex-direction: column;
+  transition: var(--transition);
 }
 
 .sidebar {
@@ -455,7 +461,7 @@ body.dark-theme .sidebar-link {
   background-color: var(--light-bg-color);
   color: var(--text-color);
   box-shadow: var(--box-shadow);
-  margin-left: 270px; /* sidebar width + margin */
+  margin-left: 270px;
   border-radius: 10px;
   overflow-y: auto;
   min-height: calc(100vh - 120px);
@@ -486,6 +492,7 @@ body.dark-theme .profile-section {
 
 .profile-section h3 {
   margin-bottom: 1rem;
+  font-size: 1.5rem;
   color: var(--primary-color);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding-bottom: 0.5rem;
@@ -513,4 +520,9 @@ body.dark-theme .profile-section h3 {
 
 body.dark-theme .profile-container h2 {
   color: var(--dark-text-color);
+}
+
+.profile-details, .audit-stats, .xp-stats, .project-stats {
+  display: grid;
+  row-gap: 1rem;
 }

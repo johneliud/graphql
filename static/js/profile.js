@@ -126,7 +126,11 @@ async function loadProfileData() {
   }
 
   try {
-    console.log('Using JWT:', jwt.substring(0, 10) + '...');
+    if (jwt) {
+      console.log('Using JWT:', jwt.substring(0, 10) + '...');
+    } else {
+      console.log('JWT is missing or invalid');
+    }
     
     const response = await fetch(
       'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
@@ -134,7 +138,7 @@ async function loadProfileData() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwt}`,
+          Authorization: `Bearer ${jwt || ''}`,
         },
         body: JSON.stringify({
           query: GRAPHQL_QUERY,

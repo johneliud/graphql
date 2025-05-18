@@ -17,80 +17,113 @@ async function initializeApp() {
 // Handle profile view rendering
 async function renderProfileView() {
   const app = document.getElementById('app');
-  
+
   // Remove existing content
-  const existingContent = document.querySelector('.signin-container, .profile-container, .about-container');
+  const existingContent = document.querySelector(
+    '.signin-container, .profile-container, .about-container, .sidebar'
+  );
   if (existingContent) {
     existingContent.remove();
   }
-  
-  // Show loading indicator
-  const loadingIndicator = document.createElement('div');
-  loadingIndicator.className = 'loading-indicator';
-  loadingIndicator.innerHTML = `
-    <div class="spinner"></div>
-    <p>Loading your profile data...</p>
-  `;
-  app.appendChild(loadingIndicator);
 
-  // Add profile content
+  // Create layout with sidebar and content area
+  const profileLayout = document.createElement('div');
+  profileLayout.className = 'profile-layout';
+  
+  // Create sidebar
+  const sidebar = document.createElement('div');
+  sidebar.className = 'sidebar';
+  sidebar.innerHTML = `
+    <h3>Dashboard</h3>
+    <ul class="sidebar-menu">
+      <li><a href="#basic-info" class="sidebar-link active">Basic Information</a></li>
+      <li><a href="#audit-stats" class="sidebar-link">Audit Statistics</a></li>
+      <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
+      <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
+    </ul>
+  `;
+  
+  // Create main content area
   const profileContent = document.createElement('div');
   profileContent.className = 'profile-container';
+  
+  // Show loading indicator
   profileContent.innerHTML = `
-    <h2>Welcome to Your Profile</h2>
-    <div class="profile-info">
-      <div class="profile-section">
-        <h3>Basic Information</h3>
-        <div class="profile-details">
-          <p><strong>Name:</strong> <span id="fullName">Loading...</span></p>
-          <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-          <p><strong>Campus:</strong> <span id="campus">Loading...</span></p>
-          <p><strong>Current Level:</strong> <span id="level">Loading...</span></p>
-        </div>
-      </div>
-
-      <div class="profile-section">
-        <h3>Audit Statistics</h3>
-        <div class="audit-stats">
-          <p><strong>Audit Ratio:</strong> <span id="auditRatio">Loading...</span></p>
-          <p><strong>Total Upvotes:</strong> <span id="totalUp">Loading...</span></p>
-          <p><strong>Total Downvotes:</strong> <span id="totalDown">Loading...</span></p>
-        </div>
-      </div>
-
-      <div class="profile-section">
-        <h3>XP Statistics</h3>
-        <div class="xp-stats">
-          <p><strong>Total XP:</strong> <span id="totalXp">Loading...</span></p>
-        </div>
-        <div id="xpGraph"></div>
-      </div>
-
-      <div class="profile-section">
-        <h3>Project Statistics</h3>
-        <div class="project-stats">
-          <p><strong>Completed Projects:</strong> <span id="completedProjects">Loading...</span></p>
-          <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
-        </div>
-        <div id="projectGraph"></div>
-      </div>
+    <div class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Loading your profile data...</p>
     </div>
   `;
-
-  // Replace loading indicator with profile content
+  
+  // Add sidebar and content to layout
+  profileLayout.appendChild(sidebar);
+  profileLayout.appendChild(profileContent);
+  app.appendChild(profileLayout);
+  
+  // Load profile data after a short delay
   setTimeout(() => {
-    app.removeChild(loadingIndicator);
-    app.appendChild(profileContent);
+    // Replace loading indicator with profile content
+    profileContent.innerHTML = `
+      <h2>Welcome to Your Profile</h2>
+      <div class="profile-info">
+        <div id="basic-info" class="profile-section">
+          <h3>Basic Information</h3>
+          <div class="profile-details">
+            <p><strong>Name:</strong> <span id="fullName">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+            <p><strong>Campus:</strong> <span id="campus">Loading...</span></p>
+            <p><strong>Current Level:</strong> <span id="level">Loading...</span></p>
+          </div>
+        </div>
+
+        <div id="audit-stats" class="profile-section">
+          <h3>Audit Statistics</h3>
+          <div class="audit-stats">
+            <p><strong>Audit Ratio:</strong> <span id="auditRatio">Loading...</span></p>
+            <p><strong>Total Upvotes:</strong> <span id="totalUp">Loading...</span></p>
+            <p><strong>Total Downvotes:</strong> <span id="totalDown">Loading...</span></p>
+          </div>
+        </div>
+
+        <div id="xp-stats" class="profile-section">
+          <h3>XP Statistics</h3>
+          <div class="xp-stats">
+            <p><strong>Total XP:</strong> <span id="totalXp">Loading...</span></p>
+          </div>
+          <div id="xpGraph"></div>
+        </div>
+
+        <div id="project-stats" class="profile-section">
+          <h3>Project Statistics</h3>
+          <div class="project-stats">
+            <p><strong>Completed Projects:</strong> <span id="completedProjects">Loading...</span></p>
+            <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
+          </div>
+          <div id="projectGraph"></div>
+        </div>
+      </div>
+    `;
     
-    // Add logout button
-    const logoutButton = document.createElement('button');
-    logoutButton.className = 'logout-btn';
-    logoutButton.textContent = 'Log Out';
-    logoutButton.addEventListener('click', () => {
-      localStorage.removeItem('jwt');
-      window.location.reload();
+    // Add event listeners for sidebar navigation
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class from all links
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        
+        // Add active class to clicked link
+        link.classList.add('active');
+        
+        // Scroll to section
+        const targetId = link.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
     });
-    profileContent.prepend(logoutButton);
     
     // Load profile data
     loadProfileData();
@@ -196,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = document.getElementById('app');
 
   if (app) {
-    app.addEventListener('showProfile', async (e) => {
+    app.addEventListener('showProfile', async () => {
       await renderProfileView();
     });
 

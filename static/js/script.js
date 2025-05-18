@@ -4,7 +4,6 @@ import { renderSignInView } from './signin/signin_view.js';
 import { validateSignInFormData } from './signin/signin_validation.js';
 import { isLoggedIn } from './validate_jwt.js';
 
-// Initialize app
 function initApp() {
   // Initialize header
   renderHeader();

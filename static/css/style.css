@@ -12,9 +12,10 @@
   --text-color: #000;
   --dark-text-color: #fff;
   --primary-color: rgb(62, 62, 255);
-
+  --light-bg-color: #fff;
+  --dark-bg-color: #121212;
   --box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  --dark-box-shadow: rgba(255, 255, 255, 0.35) 0px 5px 15px;
+  --dark-box-shadow: rgba(255, 255, 255, 0.15) 0px 5px 15px;
 }
 
 button:hover {
@@ -25,10 +26,12 @@ body {
   flex: 1;
   transition: var(--transition);
   padding-top: 80px; /* Adjust for fixed header */
+  background-color: var(--light-bg-color);
+  color: var(--text-color);
 }
 
 body.dark-theme {
-  background-color: var(--text-color);
+  background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
 }
 
@@ -39,7 +42,8 @@ body.dark-theme {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--dark-text-color);
+  background-color: var(--light-bg-color);
+  color: var(--text-color);
   box-shadow: var(--box-shadow);
   padding: 1rem 2rem;
   transition: var(--transition);
@@ -56,7 +60,8 @@ body.dark-theme {
 }
 
 .header.dark-theme {
-  background-color: var(--text-color);
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
   box-shadow: var(--dark-box-shadow);
 }
 
@@ -368,7 +373,8 @@ body.dark-theme .spinner {
 .sidebar {
   width: 250px;
   height: calc(100vh - 100px);
-  background-color: var(--dark-text-color);
+  background-color: var(--light-bg-color);
+  color: var(--text-color);
   box-shadow: var(--box-shadow);
   border-radius: .5rem;
   padding: 2rem 1rem;
@@ -380,7 +386,7 @@ body.dark-theme .spinner {
 }
 
 body.dark-theme .sidebar {
-  background-color: var(--text-color);
+  background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
   box-shadow: var(--dark-box-shadow);
 }
@@ -426,7 +432,8 @@ body.dark-theme .sidebar-link {
 .profile-container {
   flex: 1;
   padding: 2rem;
-  background-color: var(--dark-text-color);
+  background-color: var(--light-bg-color);
+  color: var(--text-color);
   box-shadow: var(--box-shadow);
   margin-left: 270px; /* sidebar width + margin */
   border-radius: 10px;
@@ -435,7 +442,7 @@ body.dark-theme .sidebar-link {
 }
 
 body.dark-theme .profile-container {
-  background-color: var(--text-color);
+  background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
   box-shadow: var(--dark-box-shadow);
 }

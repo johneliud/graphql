@@ -83,15 +83,11 @@ export async function validateSignInFormData() {
 
       displayPopup('Sign in successful!', true);
 
-      const jwt = data.jwt;
-
-      console.log("jwt here: ", jwt);
-      
+      const jwt = typeof data === 'string' ? data : data.jwt;      
 
       // Store JWT in localStorage
       if (jwt) {
         localStorage.setItem('jwt', jwt);
-        console.log('JWT stored:', jwt.substring(0, 10) + '...');
         
         // Dispatch event to show profile
         const app = document.getElementById('app');

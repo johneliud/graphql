@@ -1,17 +1,10 @@
 import { displayPopup } from '../display_popup.js';
-import { renderProfileView } from '../profile.js';
 
 export async function validateSignInFormData() {
   const signInForm = document.getElementById('signinForm');
-  const messagePopup = document.getElementById('messagePopup');
 
   if (!signInForm) {
     console.error('Signin form not found');
-    return;
-  }
-
-  if (!messagePopup) {
-    console.error('Message popup not found');
     return;
   }
 
@@ -38,11 +31,6 @@ export async function validateSignInFormData() {
 
   signInForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (messagePopup) {
-      messagePopup.textContent = '';
-      messagePopup.classList.remove('show', 'success', 'error');
-    }
 
     const emailOrUsername = document
       .getElementById('emailOrUsername')
@@ -83,7 +71,7 @@ export async function validateSignInFormData() {
       );
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         displayPopup(data.message || 'Sign in unsuccessful!', false);
         if (signInBtn) {
@@ -92,13 +80,29 @@ export async function validateSignInFormData() {
         }
         return;
       }
-      
+
       displayPopup('Sign in successful!', true);
+
       const jwt = data.jwt;
 
+      console.log("jwt here: ", jwt);
+      
+
       // Store JWT in localStorage
-      localStorage.setItem('jwt', jwt);
-      renderProfileView();
+      if (jwt) {
+        localStorage.setItem('jwt', jwt);
+        console.log('JWT stored:', jwt.substring(0, 10) + '...');
+        
+        // Dispatch event to show profile
+        const app = document.getElementById('app');
+        app.dispatchEvent(new CustomEvent('showProfile'));
+      } else {
+        displayPopup('No JWT received from server', false);
+        if (signInBtn) {
+          signInBtn.disabled = false;
+          signInBtn.textContent = 'Sign In';
+        }
+      }
     } catch (error) {
       displayPopup(error.message || 'Error during sign in', false);
       const signInBtn = document.querySelector('.sign-in-btn');

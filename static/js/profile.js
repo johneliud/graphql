@@ -1,6 +1,8 @@
 import { LineGraph, BarGraph } from './svg_graphs.js';
 import { GRAPHQL_QUERY } from './graphql_query.js';
 import { displayPopup } from './display_popup.js';
+import { renderSignInView } from './signin/signin_view.js';
+import { validateSignInFormData } from './signin/signin_validation.js';
 
 // Handle profile view rendering
 async function renderProfileView() {
@@ -98,10 +100,7 @@ async function renderProfileView() {
       link.addEventListener('click', (e) => {
         e.preventDefault();
 
-        // Remove active class from all links
         sidebarLinks.forEach((l) => l.classList.remove('active'));
-
-        // Add active class to clicked link
         link.classList.add('active');
 
         // Scroll to section
@@ -119,9 +118,16 @@ async function renderProfileView() {
 // Handle profile data loading
 async function loadProfileData() {
   const jwt = localStorage.getItem('jwt');
-  if (!jwt) return;
+  if (!jwt) {
+    displayPopup('No authentication token found. Please sign in.', false);
+    renderSignInView();
+    validateSignInFormData();
+    return;
+  }
 
   try {
+    console.log('Using JWT:', jwt.substring(0, 10) + '...');
+    
     const response = await fetch(
       'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
       {
@@ -139,10 +145,35 @@ async function loadProfileData() {
     if (!response.ok) {
       const error = await response.json();
       displayPopup(error.message || 'Failed to load profile data', false);
+      
+      // If unauthorized, clear token and redirect to sign in
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('jwt');
+        renderSignInView();
+        validateSignInFormData();
+      }
       return;
     }
 
     const data = await response.json();
+    
+    // Check for GraphQL errors
+    if (data.errors && data.errors.length > 0) {
+      const errorMessage = data.errors[0].message;
+      console.error('GraphQL Error:', errorMessage);
+      
+      // If JWT verification failed, clear token and redirect to sign in
+      if (errorMessage.includes('Could not verify JWT')) {
+        localStorage.removeItem('jwt');
+        displayPopup('Session expired. Please sign in again.', false);
+        renderSignInView();
+        validateSignInFormData();
+        return;
+      }
+      
+      displayPopup(errorMessage || 'Error in GraphQL response', false);
+      return;
+    }
 
     if (!data.data || !data.data.user) {
       displayPopup('No user data found', false);

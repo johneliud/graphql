@@ -50,67 +50,7 @@ async function renderProfileView() {
   profileLayout.appendChild(profileContent);
   app.appendChild(profileLayout);
 
-  // Load profile data after a short delay
-  setTimeout(() => {
-    // Replace loading indicator with profile content
-    profileContent.innerHTML = `
-      <h2>Welcome to Your Profile</h2>
-      <div class="profile-info">
-        <div id="basic-info" class="profile-section">
-          <h3>Basic Information</h3>
-          <div class="profile-details">
-            <p><strong>Name:</strong> <span id="fullName">Loading...</span></p>
-            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-            <p><strong>Campus:</strong> <span id="campus">Loading...</span></p>
-            <p><strong>Current Level:</strong> <span id="level">Loading...</span></p>
-          </div>
-        </div>
-
-        <div id="audit-stats" class="profile-section">
-          <h3>Audit Statistics</h3>
-          <div class="audit-stats">
-            <p><strong>Audit Ratio:</strong> <span id="auditRatio">Loading...</span></p>
-            <p><strong>Total Upvotes:</strong> <span id="totalUp">Loading...</span></p>
-            <p><strong>Total Downvotes:</strong> <span id="totalDown">Loading...</span></p>
-          </div>
-        </div>
-
-        <div id="xp-stats" class="profile-section">
-          <h3>XP Statistics</h3>
-          <div class="xp-stats">
-            <p><strong>Total XP:</strong> <span id="totalXp">Loading...</span></p>
-          </div>
-          <div id="xpGraph"></div>
-        </div>
-
-        <div id="project-stats" class="profile-section">
-          <h3>Project Statistics</h3>
-          <div class="project-stats">
-            <p><strong>Completed Projects:</strong> <span id="completedProjects">Loading...</span></p>
-            <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
-          </div>
-          <div id="projectGraph"></div>
-        </div>
-      </div>
-    `;
-
-    // Add event listeners for sidebar navigation
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    sidebarLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        sidebarLinks.forEach((l) => l.classList.remove('active'));
-        link.classList.add('active');
-        const targetId = link.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    });
-    loadProfileData();
-  }, 1000);
+  // loadProfileData();
 }
 
 // Handle profile data loading
@@ -157,6 +97,8 @@ async function loadProfileData() {
 
     const data = await response.json();
 
+    console.log('data: ', data);
+
     // Check for GraphQL errors
     if (data.errors && data.errors.length > 0) {
       const errorMessage = data.errors[0].message;
@@ -180,9 +122,13 @@ async function loadProfileData() {
       return;
     }
 
-    const userData = data.data.user;
+    const userData = data.data.user[0]; // Get the first user from the array
 
-    console.log("userData: ", userData)
+    console.log("userData: ", userData);
+
+    // Update page title with user's name
+    document.querySelector('.profile-container h2').textContent = 
+      `Welcome, ${userData.firstName || 'User'}!`;
 
     // Update basic information
     document.getElementById('fullName').textContent = `${
@@ -194,11 +140,10 @@ async function loadProfileData() {
       userData.events?.[0]?.level || 'N/A';
 
     // Update audit statistics
-    document.getElementById('auditRatio').textContent = `${
-      userData.auditRatio || 0
-    }%`;
-    document.getElementById('totalUp').textContent = userData.totalUp || 0;
-    document.getElementById('totalDown').textContent = userData.totalDown || 0;
+    const auditRatio = userData.auditRatio || 0;
+    document.getElementById('auditRatio').textContent = `${(auditRatio * 100).toFixed(2)}%`;
+    document.getElementById('totalUp').textContent = userData.totalUp?.toLocaleString() || 0;
+    document.getElementById('totalDown').textContent = userData.totalDown?.toLocaleString() || 0;
 
     // Update XP statistics
     const totalXp = userData.totalXp?.aggregate?.sum?.amount || 0;
@@ -209,30 +154,37 @@ async function loadProfileData() {
     const xpData =
       userData.xp?.map((x) => ({
         createdAt: x.createdAt,
-        amount: x.amount,
+        amount: x.amount || 0, // Ensure amount is never undefined
       })) || [];
 
     if (xpData.length > 0) {
       const lineGraph = new LineGraph(xpData);
       xpGraph.appendChild(lineGraph.render());
+    } else {
+      xpGraph.innerHTML = '<p>No XP data available</p>';
     }
 
     // Update project statistics
     const completedProjects = userData.completed_projects?.length || 0;
     const currentProjects = userData.current_projects?.length || 0;
     document.getElementById('completedProjects').textContent =
-      completedProjects;
-    document.getElementById('currentProjects').textContent = currentProjects;
+      completedProjects.toString();
+    document.getElementById('currentProjects').textContent = 
+      currentProjects.toString();
 
     // Create project status graph
     const projectGraph = document.getElementById('projectGraph');
     const projectData = [
-      { status: 'Completed', count: completedProjects },
-      { status: 'Current', count: currentProjects },
+      { status: 'Completed', count: completedProjects || 0 },
+      { status: 'Current', count: currentProjects || 0 },
     ];
 
-    const barGraph = new BarGraph(projectData);
-    projectGraph.appendChild(barGraph.render());
+    if (completedProjects > 0 || currentProjects > 0) {
+      const barGraph = new BarGraph(projectData);
+      projectGraph.appendChild(barGraph.render());
+    } else {
+      projectGraph.innerHTML = '<p>No project data available</p>';
+    }
   } catch (error) {
     displayPopup(error.message || 'Error loading profile data', false);
     console.error('Error loading profile data:', error);

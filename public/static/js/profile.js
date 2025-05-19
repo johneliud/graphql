@@ -300,7 +300,8 @@ async function loadProfileData() {
         showPercentages: true,
         showLegend: true,
         showTotal: true,
-        totalLabel: 'Projects'
+        totalLabel: 'Projects',
+        innerRadiusRatio: 0.6 // Ensure this is set to create the donut hole
       });
       
       projectPassFailChart.innerHTML = '';

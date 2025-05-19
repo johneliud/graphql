@@ -27,6 +27,7 @@ async function renderProfileView() {
       <li><a href="#audit-stats" class="sidebar-link">Audit Statistics</a></li>
       <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
+      <li><a href="#pass-fail-stats" class="sidebar-link">Pass/Fail Statistics</a></li>
       <li><a href="#completed-projects" class="sidebar-link">Completed Projects</a></li>
       <li><a href="#skills" class="sidebar-link">Skills</a></li>
     </ul>
@@ -68,8 +69,8 @@ async function renderProfileView() {
           </div>
         </div>
         
-        <div id="audit-ratio" class="profile-section">
-          <h3>Audit Ratio</h3>
+        <div id="audit-stats" class="profile-section">
+          <h3>Audit Statistics</h3>
           <div class="audit-stats">
             <p><strong>Total Upvotes:</strong> <span id="totalUpvotes">Loading...</span></p>
             <p><strong>Total Downvotes:</strong> <span id="totalDownvotes">Loading...</span></p>
@@ -93,6 +94,14 @@ async function renderProfileView() {
             <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
           </div>
           <div id="projectGraph"></div>
+        </div>
+        
+        <div id="pass-fail-stats" class="profile-section">
+          <h3>Pass/Fail Statistics</h3>
+          <div class="pass-fail-stats">
+            <p><strong>Passed Projects:</strong> <span id="passedProjects">Loading...</span></p>
+            <p><strong>Failed Projects:</strong> <span id="failedProjects">Loading...</span></p>
+          </div>
           <div id="projectPassFailChart" class="chart-container"></div>
         </div>
 
@@ -221,72 +230,68 @@ async function loadProfileData() {
     updateElementText('level', userData.events?.[0]?.level || 'N/A');
 
     // Update audit statistics
-    const auditStats = document.getElementById('audit-stats');
-    if (auditStats) {
-      const auditRatioChartContainer = document.createElement('div');
-      auditRatioChartContainer.id = 'auditRatioChart';
-      auditRatioChartContainer.className = 'chart-container';
-      auditStats.appendChild(auditRatioChartContainer);
+    const totalUp = userData.totalUp || 0;
+    const totalDown = userData.totalDown || 0;
+    const auditRatio = userData.auditRatio || 'N/A';
 
-      // Create and render the pie chart
-      const totalUp = userData.totalUp || 0;
-      const totalDown = userData.totalDown || 0;
+    updateElementText('totalUpvotes', totalUp.toString());
+    updateElementText('totalDownvotes', totalDown.toString());
+    updateElementText('auditRatio', auditRatio.toString());
 
+    // Create and render the pie chart for audit ratio
+    const auditRatioChart = document.getElementById('auditRatioChart');
+    if (auditRatioChart) {
       const auditRatioData = [
         { label: 'Upvotes', value: totalUp },
-        { label: 'Downvotes', value: totalDown },
+        { label: 'Downvotes', value: totalDown }
       ];
-
+      
       const pieChart = new PieChart(auditRatioData, {
         width: 400,
         height: 300,
         colors: ['#4caf50', '#f44336'], // Green for upvotes, red for downvotes
         showLabels: true,
         showPercentages: true,
-        showLegend: true,
+        showLegend: true
       });
-
-      auditRatioChartContainer.innerHTML = '';
-      auditRatioChartContainer.appendChild(pieChart.render());
+      
+      auditRatioChart.innerHTML = '';
+      auditRatioChart.appendChild(pieChart.render());
     }
 
     // Projects PASS/FAIL ratio
-    const projectStats = document.getElementById('project-stats');
-    if (projectStats) {
-      const projectRatioChartContainer = document.createElement('div');
-      projectRatioChartContainer.id = 'projectRatioChart';
-      projectRatioChartContainer.className = 'chart-container';
-      projectStats.appendChild(projectRatioChartContainer);
+    // Calculate pass/fail counts from completed projects
+    let passCount = 0;
+    let failCount = 0;
 
-      // Calculate pass/fail counts from completed projects
-      let passCount = 0;
-      let failCount = 0;
-
-      if (
-        userData.completed_projects &&
-        userData.completed_projects.length > 0
-      ) {
-        userData.completed_projects.forEach((project) => {
-          // Assuming there's a status field or some way to determine pass/fail
-          // This is a placeholder - adjust based on your actual data structure
-          if (project.group.status === 'finished') {
-            passCount++;
-          } else if (project.group.status === 'failed') {
-            failCount++;
-          }
-        });
-
-        // If we don't have explicit fail status, assume all completed are passes
-        if (passCount === 0 && failCount === 0) {
-          passCount = userData.completed_projects.length;
+    if (userData.completed_projects && userData.completed_projects.length > 0) {
+      userData.completed_projects.forEach(project => {
+        // Assuming there's a status field or some way to determine pass/fail
+        if (project.group.status === 'finished') {
+          passCount++;
+        } else if (project.group.status === 'failed') {
+          failCount++;
         }
+      });
+      
+      // If we don't have explicit fail status, assume all completed are passes
+      if (passCount === 0 && failCount === 0) {
+        passCount = userData.completed_projects.length;
       }
+    }
 
+    // Update pass/fail statistics
+    updateElementText('passedProjects', passCount.toString());
+    updateElementText('failedProjects', failCount.toString());
+
+    // Create and render the donut chart for pass/fail ratio
+    const projectPassFailChart = document.getElementById('projectPassFailChart');
+    if (projectPassFailChart) {
       const projectRatioData = [
         { label: 'PASS', value: passCount },
-        { label: 'FAIL', value: failCount },
+        { label: 'FAIL', value: failCount }
       ];
-
+      
       const donutChart = new DonutChart(projectRatioData, {
         width: 400,
         height: 300,
@@ -295,11 +300,11 @@ async function loadProfileData() {
         showPercentages: true,
         showLegend: true,
         showTotal: true,
-        totalLabel: 'Projects',
+        totalLabel: 'Projects'
       });
-
-      projectRatioChartContainer.innerHTML = '';
-      projectRatioChartContainer.appendChild(donutChart.render());
+      
+      projectPassFailChart.innerHTML = '';
+      projectPassFailChart.appendChild(donutChart.render());
     }
 
     // Update XP statistics

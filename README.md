@@ -1,69 +1,69 @@
-# graphql
+# graphql 
 
-## Project Overview
+## Project Overview  
 
-This project aims to create a personalized profile page by querying user data from a GraphQL API. The application features a secure login system and displays user information with interactive SVG-based data visualizations.
+This project creates a personalized profile page by querying user data from Zone01's GraphQL API. It features a secure login system and displays user information with interactive SVG-based data visualizations.  
 
-## Key Features
+### 🔗 Live Demo  
+[View Hosted Project](https://graphql-uvsx.onrender.com)  
 
-- **GraphQL Integration**: Connects to the platform's GraphQL endpoint to fetch user data
-- **Secure Authentication**: Implements JWT-based login with support for both username and email credentials
-- **Profile Display**: Shows at least three sections of user information (selectable from various options)
-- **Data Visualization**: Includes SVG-generated statistical graphs displaying user progress and achievements
+## Key Features  
 
-## Technical Requirements
+✅ **GraphQL Integration** – Fetches user data from Zone01's GraphQL endpoint  
+✅ **Secure Authentication** – JWT-based login (username/email + password)  
+✅ **Profile Display** – Shows user info (XP, grades, audits, skills, etc.)  
+✅ **Data Visualization** – Interactive SVG graphs for progress tracking  
 
-### Authentication System
-- Only accept credentials available for users registered to Zone01 system
-- Login page accepts both `username:password` and `email:password`
-- Implements Basic authentication with base64 encoding
-- Handles JWT token retrieval from `/api/auth/signin`
-- Includes proper error messaging for invalid credentials
-- Provides logout functionality
-- Uses Bearer authentication for GraphQL queries
+## Prerequisites  
 
-### Profile Page Components
-Must display at least three of the following information sections:
-- Basic user identification
-- XP amount
-- Grades
-- Audits
-- Skills
+🔹 **Zone01 Account Required** – Only registered Zone01 users can authenticate  
+🔹 Modern web browser (Firefox recommended)  
 
-### Data Visualization (Mandatory)
-- Minimum of two different SVG-based statistical graphs
-- Possible graph options include:
-  - XP earned over time
-  - XP by project
-  - Audit ratio
-  - PASS/FAIL ratio by project
-  - Piscine stats (JS/Go)
-  - Exercise attempt statistics
+## Getting Started  
 
-## API Endpoints
-- GraphQL Endpoint: `https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql`
-- Authentication Endpoint: `https://learn.zone01kisumu.ke/api/auth/signin`
+### 1. Clone the Repository  
+```bash
+git clone https://learn.zone01kisumu.ke/git/johnodhiambo0/graphql.git
+cd graphql
+```
+### 2. Open with Live Server  
 
-## UI Requirements
-- Clean, user-friendly interface
-- Responsive design
-- Visually appealing data visualizations
-- Clear information hierarchy
-- Proper error handling and user feedback
+## Technical Implementation  
 
-## Development Notes
-- All GraphQL queries will only return data for the authenticated user
-- SVG graphs should consider principles of good data visualization
-- Additional creative information displays are encouraged
-- The project emphasizes learning GraphQL through practical implementation
+### Authentication  
+- Login accepts `username:password` or `email:password`  
+- Uses Basic Auth with base64 encoding  
+- Retrieves JWT from `/api/auth/signin`  
+- Implements proper error handling  
 
-## Getting Started
+### Profile Data  
+Displays at least 3 sections from:  
+- Basic user info  
+- XP amount  
+- Grades  
+- Audits  
+- Skills  
 
-1. Clone the repository
-2. Install dependencies
-3. Implement the login system
-4. Create GraphQL queries for required data
-5. Design profile page layout
-6. Develop SVG visualization components
-7. Test authentication flow and data fetching
-8. Implement error handling and edge cases
+### Mandatory Visualizations (SVG)  
+- **Minimum 2 graph types** from:  
+  - XP over time  
+  - XP by project  
+  - Audit ratio  
+  - PASS/FAIL ratios  
+  - Piscine stats  
+
+## API Endpoints  
+- **GraphQL**: `https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql`  
+- **Auth**: `https://learn.zone01kisumu.ke/api/auth/signin`  
+
+## Contribution  
+Contributions welcome! Please fork the repository and submit pull requests.  
+
+## License  
+[MIT](https://github.com/johneliud/graphql/blob/main/LICENSE)  
+
+---
+
+**Note**: This application only works with valid Zone01 Kisumu credentials. Demo account available upon request.  
+
+[➡️ Access Live Version](https://graphql-uvsx.onrender.com)

@@ -9,15 +9,15 @@ This project creates a personalized profile page by querying user data from Zone
 
 ## Key Features  
 
-✅ **GraphQL Integration** – Fetches user data from Zone01's GraphQL endpoint  
-✅ **Secure Authentication** – JWT-based login (username/email + password)  
-✅ **Profile Display** – Shows user info (XP, grades, audits, skills, etc.)  
-✅ **Data Visualization** – Interactive SVG graphs for progress tracking  
+- **GraphQL Integration** – Fetches user data from Zone01's GraphQL endpoint  
+- **Secure Authentication** – JWT-based login (username/email + password)  
+- **Profile Display** – Shows user info (XP, grades, audits, skills, etc.)  
+- **Data Visualization** – Interactive SVG graphs for progress tracking  
 
 ## Prerequisites  
 
-🔹 **Zone01 Account Required** – Only registered Zone01 users can authenticate  
-🔹 Modern web browser (Firefox recommended)  
+- **Zone01 Account Required** – Only registered Zone01 users can authenticate  
+- Modern web browser (Firefox recommended)  
 
 ## Getting Started  
 

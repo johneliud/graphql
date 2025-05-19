@@ -399,3 +399,222 @@ export class PieChart {
     return svg;
   }
 }
+
+export class DonutChart {
+  constructor(data, options = {}) {
+    this.data = data;
+    this.width = options.width || 300;
+    this.height = options.height || 300;
+    this.outerRadius = Math.min(this.width, this.height) / 2 - 40;
+    this.innerRadius = this.outerRadius * (options.innerRadiusRatio || 0.6); // Inner hole size
+    this.colors = options.colors || [
+      '#3e3eff',
+      '#f44336',
+      '#4caf50',
+      '#ff9800',
+      '#9c27b0',
+    ];
+    this.showLabels =
+      options.showLabels !== undefined ? options.showLabels : true;
+    this.showPercentages =
+      options.showPercentages !== undefined ? options.showPercentages : true;
+    this.showLegend =
+      options.showLegend !== undefined ? options.showLegend : true;
+    this.showTotal = options.showTotal !== undefined ? options.showTotal : true;
+    this.totalLabel = options.totalLabel || 'Total';
+  }
+
+  render() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', this.width);
+    svg.setAttribute('height', this.height);
+    svg.setAttribute('class', 'donut-chart');
+
+    if (!this.data || this.data.length === 0) {
+      const text = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'text'
+      );
+      text.setAttribute('x', this.width / 2);
+      text.setAttribute('y', this.height / 2);
+      text.setAttribute('text-anchor', 'middle');
+      text.textContent = 'No data available';
+      svg.appendChild(text);
+      return svg;
+    }
+
+    // Calculate total value
+    const total = this.data.reduce((sum, item) => sum + (item.value || 0), 0);
+
+    // Create group for the donut chart
+    const donutGroup = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'g'
+    );
+    donutGroup.setAttribute(
+      'transform',
+      `translate(${this.width / 2}, ${this.height / 2})`
+    );
+
+    // Draw donut slices
+    let startAngle = 0;
+    this.data.forEach((item, index) => {
+      if (!item.value || item.value === 0) return; // Skip zero values
+
+      const percentage = (item.value / total) * 100;
+      const angle = (percentage / 100) * Math.PI * 2;
+      const endAngle = startAngle + angle;
+
+      // Calculate arc path
+      const x1 = this.outerRadius * Math.cos(startAngle - Math.PI / 2);
+      const y1 = this.outerRadius * Math.sin(startAngle - Math.PI / 2);
+      const x2 = this.outerRadius * Math.cos(endAngle - Math.PI / 2);
+      const y2 = this.outerRadius * Math.sin(endAngle - Math.PI / 2);
+
+      const ix1 = this.innerRadius * Math.cos(startAngle - Math.PI / 2);
+      const iy1 = this.innerRadius * Math.sin(startAngle - Math.PI / 2);
+      const ix2 = this.innerRadius * Math.cos(endAngle - Math.PI / 2);
+      const iy2 = this.innerRadius * Math.sin(endAngle - Math.PI / 2);
+
+      // Create arc path
+      const largeArcFlag = angle > Math.PI ? 1 : 0;
+      const pathData = [
+        `M ${x1} ${y1}`,
+        `A ${this.outerRadius} ${this.outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+        `L ${ix2} ${iy2}`,
+        `A ${this.innerRadius} ${this.innerRadius} 0 ${largeArcFlag} 0 ${ix1} ${iy1}`,
+        'Z',
+      ].join(' ');
+
+      const slice = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'path'
+      );
+      slice.setAttribute('d', pathData);
+      slice.setAttribute('fill', this.colors[index % this.colors.length]);
+      slice.setAttribute('stroke', '#fff');
+      slice.setAttribute('stroke-width', '1');
+
+      // Add hover effect
+      slice.setAttribute('class', 'donut-slice');
+      slice.addEventListener('mouseover', () => {
+        slice.setAttribute('opacity', '0.8');
+      });
+      slice.addEventListener('mouseout', () => {
+        slice.setAttribute('opacity', '1');
+      });
+
+      donutGroup.appendChild(slice);
+
+      // Add label if showLabels is true
+      if (this.showLabels && percentage >= 5) {
+        // Only show labels for slices >= 5%
+        const midAngle = startAngle + angle / 2;
+        const labelRadius = (this.outerRadius + this.innerRadius) / 2; // Position label in the middle of the ring
+        const labelX = labelRadius * Math.cos(midAngle - Math.PI / 2);
+        const labelY = labelRadius * Math.sin(midAngle - Math.PI / 2);
+
+        const label = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'text'
+        );
+        label.setAttribute('x', labelX);
+        label.setAttribute('y', labelY);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('dominant-baseline', 'middle');
+        label.setAttribute('fill', '#fff');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('font-size', '12');
+
+        if (this.showPercentages) {
+          label.textContent = `${Math.round(percentage)}%`;
+        } else {
+          label.textContent = item.label;
+        }
+
+        donutGroup.appendChild(label);
+      }
+
+      startAngle = endAngle;
+    });
+
+    // Add total in the center if showTotal is true
+    if (this.showTotal) {
+      const totalText = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'text'
+      );
+      totalText.setAttribute('x', 0);
+      totalText.setAttribute('y', -10);
+      totalText.setAttribute('text-anchor', 'middle');
+      totalText.setAttribute('font-size', '14');
+      totalText.setAttribute('font-weight', 'bold');
+      totalText.textContent = this.totalLabel;
+
+      const totalValue = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'text'
+      );
+      totalValue.setAttribute('x', 0);
+      totalValue.setAttribute('y', 15);
+      totalValue.setAttribute('text-anchor', 'middle');
+      totalValue.setAttribute('font-size', '18');
+      totalValue.setAttribute('font-weight', 'bold');
+      totalValue.textContent = total;
+
+      donutGroup.appendChild(totalText);
+      donutGroup.appendChild(totalValue);
+    }
+
+    svg.appendChild(donutGroup);
+
+    // Add legend
+    if (this.showLegend) {
+      const legendGroup = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'g'
+      );
+      legendGroup.setAttribute(
+        'transform',
+        `translate(${this.width - 120}, 20)`
+      );
+
+      this.data.forEach((item, index) => {
+        const legendItem = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'g'
+        );
+        legendItem.setAttribute('transform', `translate(0, ${index * 25})`);
+
+        // Color box
+        const colorBox = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'rect'
+        );
+        colorBox.setAttribute('width', '15');
+        colorBox.setAttribute('height', '15');
+        colorBox.setAttribute('fill', this.colors[index % this.colors.length]);
+        legendItem.appendChild(colorBox);
+
+        // Label
+        const label = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'text'
+        );
+        label.setAttribute('x', '25');
+        label.setAttribute('y', '12');
+        label.setAttribute('font-size', '12');
+
+        const percentage = (item.value / total) * 100;
+        label.textContent = `${item.label} (${Math.round(percentage)}%)`;
+
+        legendItem.appendChild(label);
+        legendGroup.appendChild(legendItem);
+      });
+
+      svg.appendChild(legendGroup);
+    }
+
+    return svg;
+  }
+}

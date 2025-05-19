@@ -1,4 +1,4 @@
-import { LineGraph, BarGraph } from './svg_graphs.js';
+import { LineGraph, BarGraph, PieChart, DonutChart } from './svg_graphs.js';
 import { GRAPHQL_QUERY } from './graphql_query.js';
 import { displayPopup } from './display_popup.js';
 import { renderSignInView } from './signin/signin_view.js';
@@ -27,6 +27,7 @@ async function renderProfileView() {
       <li><a href="#audit-stats" class="sidebar-link">Audit Statistics</a></li>
       <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
+      <li><a href="#pass-fail-stats" class="sidebar-link">Pass/Fail Statistics</a></li>
       <li><a href="#completed-projects" class="sidebar-link">Completed Projects</a></li>
       <li><a href="#skills" class="sidebar-link">Skills</a></li>
     </ul>
@@ -67,16 +68,17 @@ async function renderProfileView() {
             <p><strong>Current Level:</strong> <span id="level">Loading...</span></p>
           </div>
         </div>
-
+        
         <div id="audit-stats" class="profile-section">
           <h3>Audit Statistics</h3>
           <div class="audit-stats">
+            <p><strong>Total Upvotes:</strong> <span id="totalUpvotes">Loading...</span></p>
+            <p><strong>Total Downvotes:</strong> <span id="totalDownvotes">Loading...</span></p>
             <p><strong>Audit Ratio:</strong> <span id="auditRatio">Loading...</span></p>
-            <p><strong>Total Upvotes:</strong> <span id="totalUp">Loading...</span></p>
-            <p><strong>Total Downvotes:</strong> <span id="totalDown">Loading...</span></p>
           </div>
+          <div id="auditRatioChart" class="chart-container"></div>
         </div>
-
+        
         <div id="xp-stats" class="profile-section">
           <h3>XP Statistics</h3>
           <div class="xp-stats">
@@ -92,6 +94,15 @@ async function renderProfileView() {
             <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
           </div>
           <div id="projectGraph"></div>
+        </div>
+        
+        <div id="pass-fail-stats" class="profile-section">
+          <h3>Pass/Fail Statistics</h3>
+          <div class="pass-fail-stats">
+            <p><strong>Passed Projects:</strong> <span id="passedProjects">Loading...</span></p>
+            <p><strong>Failed Projects:</strong> <span id="failedProjects">Loading...</span></p>
+          </div>
+          <div id="projectPassFailChart" class="chart-container"></div>
         </div>
 
         <div id="completed-projects" class="profile-section">
@@ -204,15 +215,11 @@ async function loadProfileData() {
 
     const userData = data.data.user[0];
 
-    console.log('userData: ', userData);
-
-    // Update page title with user's name
     const welcomeTitle = document.querySelector('.profile-header h2');
     if (welcomeTitle) {
       welcomeTitle.textContent = `Welcome, ${userData.firstName || 'User'}!`;
     }
 
-    // Update basic information
     updateElementText(
       'fullName',
       `${userData.firstName || ''} ${userData.lastName || ''}`
@@ -223,10 +230,83 @@ async function loadProfileData() {
     updateElementText('level', userData.events?.[0]?.level || 'N/A');
 
     // Update audit statistics
-    const auditRatio = userData.auditRatio || 0;
-    updateElementText('auditRatio', `${(auditRatio * 100).toFixed(2)}%`);
-    updateElementText('totalUp', userData.totalUp?.toLocaleString() || 0);
-    updateElementText('totalDown', userData.totalDown?.toLocaleString() || 0);
+    const totalUp = userData.totalUp || 0;
+    const totalDown = userData.totalDown || 0;
+    const auditRatio = userData.auditRatio || 'N/A';
+
+    updateElementText('totalUpvotes', totalUp.toString());
+    updateElementText('totalDownvotes', totalDown.toString());
+    updateElementText('auditRatio', auditRatio.toString());
+
+    // Create and render the pie chart for audit ratio
+    const auditRatioChart = document.getElementById('auditRatioChart');
+    if (auditRatioChart) {
+      const auditRatioData = [
+        { label: 'Upvotes', value: totalUp },
+        { label: 'Downvotes', value: totalDown }
+      ];
+      
+      const pieChart = new PieChart(auditRatioData, {
+        width: 400,
+        height: 300,
+        colors: ['#4caf50', '#f44336'], // Green for upvotes, red for downvotes
+        showLabels: true,
+        showPercentages: true,
+        showLegend: true
+      });
+      
+      auditRatioChart.innerHTML = '';
+      auditRatioChart.appendChild(pieChart.render());
+    }
+
+    // Projects PASS/FAIL ratio
+    // Calculate pass/fail counts from completed projects
+    let passCount = 0;
+    let failCount = 0;
+
+    if (userData.completed_projects && userData.completed_projects.length > 0) {
+      userData.completed_projects.forEach(project => {
+        // Assuming there's a status field or some way to determine pass/fail
+        if (project.group.status === 'finished') {
+          passCount++;
+        } else if (project.group.status === 'failed') {
+          failCount++;
+        }
+      });
+      
+      // If we don't have explicit fail status, assume all completed are passes
+      if (passCount === 0 && failCount === 0) {
+        passCount = userData.completed_projects.length;
+      }
+    }
+
+    // Update pass/fail statistics
+    updateElementText('passedProjects', passCount.toString());
+    updateElementText('failedProjects', failCount.toString());
+
+    // Create and render the donut chart for pass/fail ratio
+    const projectPassFailChart = document.getElementById('projectPassFailChart');
+    if (projectPassFailChart) {
+      const projectRatioData = [
+        { label: 'PASS', value: passCount },
+        { label: 'FAIL', value: failCount }
+      ];
+      
+      const donutChart = new DonutChart(projectRatioData, {
+        width: 400,
+        height: 300,
+        colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
+        showLabels: true,
+        showPercentages: true,
+        showLegend: true,
+        showTotal: true,
+        totalLabel: 'Projects',
+        innerRadiusRatio: 0.6 // Ensure this is set to create the donut hole
+      });
+      
+      projectPassFailChart.innerHTML = '';
+      projectPassFailChart.appendChild(donutChart.render());
+    }
 
     // Update XP statistics
     const totalXp = userData.totalXp?.aggregate?.sum?.amount || 0;
@@ -242,8 +322,14 @@ async function loadProfileData() {
         })) || [];
 
       if (xpData.length > 0) {
-        const lineGraph = new LineGraph(xpData);
-        xpGraph.appendChild(lineGraph.render());
+        xpGraph.innerHTML = ''; // Clear any existing content
+        const lineGraph = new LineGraph(xpData, {
+          width: 600,
+          height: 300,
+          padding: 40
+        });
+        const svgElement = lineGraph.render();
+        xpGraph.appendChild(svgElement);
       } else {
         xpGraph.innerHTML = '<p>No XP data available</p>';
       }
@@ -264,29 +350,41 @@ async function loadProfileData() {
       ];
 
       if (completedProjects > 0 || currentProjects > 0) {
-        const barGraph = new BarGraph(projectData);
-        projectGraph.appendChild(barGraph.render());
+        projectGraph.innerHTML = ''; // Clear any existing content
+        const barGraph = new BarGraph(projectData, {
+          width: 600,
+          height: 300,
+          padding: 40,
+          colors: ['#3e3eff', '#4caf50']
+        });
+        const svgElement = barGraph.render();
+        projectGraph.appendChild(svgElement);
       } else {
         projectGraph.innerHTML = '<p>No project data available</p>';
       }
     }
 
     // Update completed projects section
-    const completedProjectsGrid = document.getElementById('completedProjectsGrid');
+    const completedProjectsGrid = document.getElementById(
+      'completedProjectsGrid'
+    );
     if (completedProjectsGrid) {
-      if (userData.completed_projects && userData.completed_projects.length > 0) {
+      if (
+        userData.completed_projects &&
+        userData.completed_projects.length > 0
+      ) {
         completedProjectsGrid.innerHTML = '';
-        
-        userData.completed_projects.forEach(project => {
+
+        userData.completed_projects.forEach((project) => {
           const projectPath = project.group.path;
           const projectName = projectPath.split('/').pop(); // Get the last part of the path
-          
+
           const projectCard = document.createElement('div');
           projectCard.className = 'project-card';
           projectCard.innerHTML = `
             <p>${formatProjectName(projectName)}</p>
           `;
-          
+
           completedProjectsGrid.appendChild(projectCard);
         });
       } else {
@@ -298,20 +396,21 @@ async function loadProfileData() {
     const skillsGraph = document.getElementById('skillsGraph');
     if (skillsGraph) {
       if (userData.skills && userData.skills.length > 0) {
-        const skillsData = userData.skills.map(skill => {
+        const skillsData = userData.skills.map((skill) => {
           // Format skill type (remove "skill_" prefix and capitalize)
-          const skillName = skill.type.replace('skill_', '').charAt(0).toUpperCase() + 
-                            skill.type.replace('skill_', '').slice(1);
-          
+          const skillName =
+            skill.type.replace('skill_', '').charAt(0).toUpperCase() +
+            skill.type.replace('skill_', '').slice(1);
+
           return {
             status: skillName,
-            count: skill.amount
+            count: skill.amount,
           };
         });
-        
+
         // Sort skills by amount in descending order
         skillsData.sort((a, b) => b.count - a.count);
-        
+
         // Use the enhanced BarGraph with options
         const barGraph = new BarGraph(skillsData, {
           width: 800, // Increased width to 800px
@@ -320,9 +419,9 @@ async function loadProfileData() {
           colors: ['#3e3eff', '#4b7bec', '#3867d6', '#4b6584'], // Different colors for variety
           height: 400, // Taller graph for better visibility
           barSpacing: 20, // More space between bars
-          padding: 60 // Increased padding for better label visibility
+          padding: 60, // Increased padding for better label visibility
         });
-        
+
         skillsGraph.innerHTML = '';
         skillsGraph.appendChild(barGraph.render());
       } else {
@@ -345,12 +444,13 @@ function updateElementText(elementId, text) {
 function formatProjectName(name) {
   // Replace hyphens and underscores with spaces
   let formattedName = name.replace(/[-_]/g, ' ');
-  
+
   // Capitalize each word
-  formattedName = formattedName.split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  formattedName = formattedName
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
-    
+
   return formattedName;
 }
 

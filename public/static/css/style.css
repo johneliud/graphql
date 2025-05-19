@@ -118,6 +118,7 @@ body.dark-theme text {
   border-radius: 10px;
   display: grid;
   place-items: center;
+  transition: var(--transition);
 }
 
 body.dark-theme .signin-container {
@@ -482,7 +483,7 @@ body.dark-theme .profile-container {
   padding: 1.5rem;
   border-radius: 8px;
   background-color: rgba(0, 0, 0, 0.02);
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 body.dark-theme .profile-section {

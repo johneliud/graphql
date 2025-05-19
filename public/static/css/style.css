@@ -506,14 +506,16 @@ body.dark-theme .profile-section h3 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Chart containers */
+/* Chart containers - center all charts */
 .chart-container {
-  margin-top: 1.5rem;
+  margin: 1.5rem auto;
   min-height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: visible;
+  width: 100%;
+  text-align: center;
 }
 
 /* Welcome message */
@@ -542,6 +544,7 @@ body.dark-theme .profile-container h2 {
 /* Pie and Donut charts */
 .pie-chart, .donut-chart {
   margin: 0 auto;
+  display: block;
 }
 
 body.dark-theme .pie-chart text,
@@ -626,4 +629,27 @@ body.dark-theme .bar-graph line {
 
 body.dark-theme .bar-graph text {
   fill: var(--dark-text-color);
+}
+
+/* Ensure all charts are centered */
+#xpGraph, #projectGraph, #skillsGraph, #auditRatioChart, #projectPassFailChart {
+  margin: 1.5rem auto;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+/* Specific styling for SVG charts */
+.line-graph, .bar-graph, .pie-chart, .donut-chart {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Ensure SVG elements are centered within their containers */
+#xpGraph svg, #projectGraph svg, #skillsGraph svg, #auditRatioChart svg, #projectPassFailChart svg {
+  margin: 0 auto;
+  display: block;
 }

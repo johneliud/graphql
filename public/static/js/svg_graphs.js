@@ -1,9 +1,9 @@
 export class LineGraph {
-  constructor(data) {
+  constructor(data, options = {}) {
     this.data = data;
-    this.width = 600;
-    this.height = 300;
-    this.padding = 40;
+    this.width = options.width || 600;
+    this.height = options.height || 300;
+    this.padding = options.padding || 40;
   }
 
   render() {
@@ -11,12 +11,11 @@ export class LineGraph {
     svg.setAttribute('width', this.width);
     svg.setAttribute('height', this.height);
     svg.setAttribute('class', 'line-graph');
-
+    svg.style.margin = '0 auto'; // Ensure SVG is centered
+    svg.style.display = 'block'; // Ensure SVG is block-level for centering
+    
     if (!this.data || this.data.length === 0) {
-      const text = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'text'
-      );
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', this.width / 2);
       text.setAttribute('y', this.height / 2);
       text.setAttribute('text-anchor', 'middle');
@@ -24,37 +23,58 @@ export class LineGraph {
       svg.appendChild(text);
       return svg;
     }
-
-    const polyline = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'polyline'
-    );
+    
+    // Add background grid lines for better readability
+    const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gridGroup.setAttribute('class', 'grid-lines');
+    
+    // Add horizontal grid lines
+    for (let i = 0; i <= 5; i++) {
+      const y = this.padding + (i / 5) * (this.height - 2 * this.padding);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', this.padding);
+      line.setAttribute('y1', y);
+      line.setAttribute('x2', this.width - this.padding);
+      line.setAttribute('y2', y);
+      line.setAttribute('stroke', 'rgba(0, 0, 0, 0.1)');
+      line.setAttribute('stroke-width', '1');
+      gridGroup.appendChild(line);
+    }
+    
+    svg.appendChild(gridGroup);
+    
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     polyline.setAttribute('fill', 'none');
     polyline.setAttribute('stroke', '#3e3eff');
     polyline.setAttribute('stroke-width', '2');
-
+    
     // Find max amount for scaling
-    const maxAmount = Math.max(...this.data.map((d) => d.amount || 0));
-
+    const maxAmount = Math.max(...this.data.map(d => d.amount || 0));
+    
     // Generate points
-    const points = this.data
-      .map((item, index) => {
-        const x =
-          this.padding +
-          (index / (this.data.length - 1 || 1)) *
-            (this.width - 2 * this.padding);
-        const y =
-          this.height -
-          this.padding -
-          ((item.amount || 0) / (maxAmount || 1)) *
-            (this.height - 2 * this.padding);
-        return `${x},${y}`;
-      })
-      .join(' ');
-
+    const points = this.data.map((item, index) => {
+      const x = this.padding + (index / (this.data.length - 1 || 1)) * (this.width - 2 * this.padding);
+      const y = this.height - this.padding - ((item.amount || 0) / (maxAmount || 1)) * (this.height - 2 * this.padding);
+      return `${x},${y}`;
+    }).join(' ');
+    
     polyline.setAttribute('points', points);
     svg.appendChild(polyline);
-
+    
+    // Add data points
+    this.data.forEach((item, index) => {
+      const x = this.padding + (index / (this.data.length - 1 || 1)) * (this.width - 2 * this.padding);
+      const y = this.height - this.padding - ((item.amount || 0) / (maxAmount || 1)) * (this.height - 2 * this.padding);
+      
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', '#3e3eff');
+      
+      svg.appendChild(circle);
+    });
+    
     return svg;
   }
 }
@@ -66,8 +86,7 @@ export class BarGraph {
     this.height = options.height || 300;
     this.padding = options.padding || 40;
     this.maxValue = options.maxValue || null;
-    this.showValues =
-      options.showValues !== undefined ? options.showValues : true;
+    this.showValues = options.showValues !== undefined ? options.showValues : true;
     this.barSpacing = options.barSpacing || 10;
     this.gridLines = options.gridLines || [0, 25, 50, 75, 100];
     this.colors = options.colors || ['#3e3eff'];
@@ -78,12 +97,11 @@ export class BarGraph {
     svg.setAttribute('width', this.width);
     svg.setAttribute('height', this.height);
     svg.setAttribute('class', 'bar-graph');
-
+    svg.style.margin = '0 auto'; // Ensure SVG is centered
+    svg.style.display = 'block'; // Ensure SVG is block-level for centering
+    
     if (!this.data || this.data.length === 0) {
-      const text = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'text'
-      );
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', this.width / 2);
       text.setAttribute('y', this.height / 2);
       text.setAttribute('text-anchor', 'middle');
@@ -91,24 +109,17 @@ export class BarGraph {
       svg.appendChild(text);
       return svg;
     }
-
+    
     // Find max value for scaling or use provided maxValue
-    const maxValue =
-      this.maxValue || Math.max(...this.data.map((d) => d.count || 0));
-
+    const maxValue = this.maxValue || Math.max(...this.data.map(d => d.count || 0));
+    
     if (this.gridLines && this.gridLines.length > 0) {
-      this.gridLines.forEach((value) => {
+      this.gridLines.forEach(value => {
         if (value <= maxValue) {
-          const y =
-            this.height -
-            this.padding -
-            (value / maxValue) * (this.height - 2 * this.padding);
-
+          const y = this.height - this.padding - (value / maxValue) * (this.height - 2 * this.padding);
+          
           // Add grid line
-          const gridLine = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'line'
-          );
+          const gridLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           gridLine.setAttribute('x1', this.padding);
           gridLine.setAttribute('y1', y);
           gridLine.setAttribute('x2', this.width - this.padding);
@@ -117,12 +128,9 @@ export class BarGraph {
           gridLine.setAttribute('stroke-width', '1');
           gridLine.setAttribute('stroke-dasharray', '4');
           svg.appendChild(gridLine);
-
+          
           // Add value label
-          const valueLabel = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'text'
-          );
+          const valueLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           valueLabel.setAttribute('x', this.padding - 10);
           valueLabel.setAttribute('y', y + 5);
           valueLabel.setAttribute('text-anchor', 'end');
@@ -132,29 +140,19 @@ export class BarGraph {
         }
       });
     }
-
+    
     // Calculate bar width based on available space and number of bars
-    const barWidth =
-      (this.width -
-        2 * this.padding -
-        (this.data.length - 1) * this.barSpacing) /
-      this.data.length;
-
+    const barWidth = (this.width - 2 * this.padding - (this.data.length - 1) * this.barSpacing) / this.data.length;
+    
     // Draw bars
     this.data.forEach((item, index) => {
-      const bar = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'rect'
-      );
+      const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       const x = this.padding + index * (barWidth + this.barSpacing);
-
+      
       // Ensure we don't divide by zero and handle undefined values
-      const height =
-        maxValue > 0
-          ? ((item.count || 0) / maxValue) * (this.height - 2 * this.padding)
-          : 0;
+      const height = maxValue > 0 ? ((item.count || 0) / maxValue) * (this.height - 2 * this.padding) : 0;
       const y = this.height - this.padding - height;
-
+      
       bar.setAttribute('x', x);
       bar.setAttribute('y', y);
       bar.setAttribute('width', barWidth);
@@ -162,38 +160,29 @@ export class BarGraph {
       bar.setAttribute('fill', this.colors[index % this.colors.length]);
       bar.setAttribute('rx', '3'); // Rounded corners
       bar.setAttribute('ry', '3');
-
+      
       svg.appendChild(bar);
-
+      
       // Add label
-      const text = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'text'
-      );
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', x + barWidth / 2);
       text.setAttribute('y', this.height - this.padding + 20);
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('font-size', '12');
-
+      
       // Handle long labels by truncating or rotating
       if (item.status.length > 10) {
-        text.setAttribute(
-          'transform',
-          `rotate(45, ${x + barWidth / 2}, ${this.height - this.padding + 20})`
-        );
+        text.setAttribute('transform', `rotate(45, ${x + barWidth / 2}, ${this.height - this.padding + 20})`);
         text.setAttribute('x', x + barWidth / 2 - 10);
         text.setAttribute('text-anchor', 'end');
       }
-
+      
       text.textContent = item.status;
       svg.appendChild(text);
-
+      
       // Add count label if showValues is true
       if (this.showValues) {
-        const countText = document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'text'
-        );
+        const countText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         countText.setAttribute('x', x + barWidth / 2);
         countText.setAttribute('y', y - 10);
         countText.setAttribute('text-anchor', 'middle');
@@ -204,7 +193,7 @@ export class BarGraph {
         svg.appendChild(countText);
       }
     });
-
+    
     return svg;
   }
 }

@@ -322,8 +322,14 @@ async function loadProfileData() {
         })) || [];
 
       if (xpData.length > 0) {
-        const lineGraph = new LineGraph(xpData);
-        xpGraph.appendChild(lineGraph.render());
+        xpGraph.innerHTML = ''; // Clear any existing content
+        const lineGraph = new LineGraph(xpData, {
+          width: 600,
+          height: 300,
+          padding: 40
+        });
+        const svgElement = lineGraph.render();
+        xpGraph.appendChild(svgElement);
       } else {
         xpGraph.innerHTML = '<p>No XP data available</p>';
       }
@@ -344,8 +350,15 @@ async function loadProfileData() {
       ];
 
       if (completedProjects > 0 || currentProjects > 0) {
-        const barGraph = new BarGraph(projectData);
-        projectGraph.appendChild(barGraph.render());
+        projectGraph.innerHTML = ''; // Clear any existing content
+        const barGraph = new BarGraph(projectData, {
+          width: 600,
+          height: 300,
+          padding: 40,
+          colors: ['#3e3eff', '#4caf50']
+        });
+        const svgElement = barGraph.render();
+        projectGraph.appendChild(svgElement);
       } else {
         projectGraph.innerHTML = '<p>No project data available</p>';
       }

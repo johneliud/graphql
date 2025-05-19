@@ -28,6 +28,7 @@ body {
   padding-top: 80px;
   background-color: var(--light-bg-color);
   color: var(--text-color);
+  overflow-x: hidden;
 }
 
 body.dark-theme {
@@ -410,6 +411,7 @@ body.dark-theme .profile-header h2 {
   top: 100px;
   left: 0;
   overflow-y: auto;
+  z-index: 10;
 }
 
 body.dark-theme .sidebar {
@@ -458,15 +460,15 @@ body.dark-theme .sidebar-link {
 /* Profile container update */
 .profile-container {
   flex: 1;
-  width: 100% - 320px;
+  width: calc(100% - 320px);
   padding: 2rem;
   background-color: var(--light-bg-color);
   color: var(--text-color);
   box-shadow: var(--box-shadow);
   margin-left: 320px;
   border-radius: 10px;
-  /* overflow-y: auto; */
   min-height: calc(100vh - 120px);
+  overflow-y: visible;
 }
 
 body.dark-theme .profile-container {
@@ -504,13 +506,14 @@ body.dark-theme .profile-section h3 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Graph containers */
-#xpGraph, #projectGraph {
+/* Chart containers */
+.chart-container {
   margin-top: 1.5rem;
   min-height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: visible;
 }
 
 /* Welcome message */
@@ -527,6 +530,28 @@ body.dark-theme .profile-container h2 {
 .profile-details, .audit-stats, .xp-stats, .project-stats {
   display: grid;
   row-gap: 1rem;
+}
+
+/* Pass/Fail Statistics */
+.pass-fail-stats {
+  display: grid;
+  row-gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Pie and Donut charts */
+.pie-chart, .donut-chart {
+  margin: 0 auto;
+}
+
+body.dark-theme .pie-chart text,
+body.dark-theme .donut-chart text {
+  fill: var(--dark-text-color);
+}
+
+.pie-slice:hover, .donut-slice:hover {
+  opacity: 0.8;
+  cursor: pointer;
 }
 
 /* Completed Projects Grid */

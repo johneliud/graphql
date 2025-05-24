@@ -67,3 +67,4 @@ Contributions welcome! Please fork the repository and submit pull requests.
 **Note**: This application only works with valid Zone01 Kisumu credentials. Demo account available upon request.  
 
 [➡️ Access Live Version](https://graphql-uvsx.onrender.com)
+[Devto Article](https://dev.to/johneliud/building-a-dynamic-user-profile-dashboard-with-graphql-670)

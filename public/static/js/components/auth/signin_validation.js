@@ -77,7 +77,7 @@ export function validateSignInFormData() {
 
       // Store JWT in localStorage
       setJwt(data);
-      
+
       // Display success message
       displayPopup('Sign in successful!', true);
 

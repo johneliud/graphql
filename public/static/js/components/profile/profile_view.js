@@ -1,4 +1,7 @@
-import { LineGraph, BarGraph, PieChart, DonutChart } from '../visualizations/svg_graphs.js';
+import { LineGraph } from '../visualizations/line_graph.js';
+import { BarGraph } from '../visualizations/bar_graph.js';
+import { PieChart } from '../visualizations/pie_chart.js';
+import { DonutChart } from '../visualizations/donut_chart.js';
 import { USER_PROFILE_QUERY } from '../../api/queries.js';
 import { fetchGraphQLData } from '../../api/graphql_client.js';
 import { displayPopup } from '../../utils/display_popup.js';
@@ -149,7 +152,7 @@ export async function renderProfileView() {
 async function loadProfileData() {
   try {
     const data = await fetchGraphQLData(USER_PROFILE_QUERY);
-    
+
     if (!data || !data.data || !data.data.user) {
       displayPopup('No user data found', false);
       return;
@@ -185,18 +188,18 @@ async function loadProfileData() {
     if (auditRatioChart) {
       const auditRatioData = [
         { label: 'Upvotes', value: totalUp },
-        { label: 'Downvotes', value: totalDown }
+        { label: 'Downvotes', value: totalDown },
       ];
-      
+
       const pieChart = new PieChart(auditRatioData, {
         width: 600,
         height: 300,
         colors: ['#4caf50', '#f44336'], // Green for upvotes, red for downvotes
         showLabels: true,
         showPercentages: true,
-        showLegend: true
+        showLegend: true,
       });
-      
+
       auditRatioChart.innerHTML = '';
       auditRatioChart.appendChild(pieChart.render());
     }
@@ -207,7 +210,7 @@ async function loadProfileData() {
     let failCount = 0;
 
     if (userData.completed_projects && userData.completed_projects.length > 0) {
-      userData.completed_projects.forEach(project => {
+      userData.completed_projects.forEach((project) => {
         // Check if the project has a group with status
         if (project.group && project.group.status) {
           if (project.group.status === 'finished') {
@@ -220,9 +223,13 @@ async function loadProfileData() {
           passCount++;
         }
       });
-      
+
       // If we don't have any projects categorized yet, assume all completed are passes
-      if (passCount === 0 && failCount === 0 && userData.completed_projects.length > 0) {
+      if (
+        passCount === 0 &&
+        failCount === 0 &&
+        userData.completed_projects.length > 0
+      ) {
         passCount = userData.completed_projects.length;
       }
     }
@@ -232,31 +239,38 @@ async function loadProfileData() {
     updateElementText('failedProjects', failCount.toString());
 
     // Create and render the donut chart for pass/fail ratio
-    const projectPassFailChart = document.getElementById('projectPassFailChart');
+    const projectPassFailChart = document.getElementById(
+      'projectPassFailChart'
+    );
     if (projectPassFailChart) {
       const projectRatioData = [
         { label: 'PASS', value: passCount },
-        { label: 'FAIL', value: failCount }
+        { label: 'FAIL', value: failCount },
       ];
-      
+
       // Make sure we have at least one project to display
       if (passCount > 0 || failCount > 0) {
         projectPassFailChart.innerHTML = ''; // Clear any existing content
-        
-        const donutChart = new DonutChart(projectRatioData, {
-          width: 600,
-          height: 300,
-          colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
-          showLabels: true,
-          showPercentages: true,
-          showLegend: true,
-          showTotal: true,
-          totalLabel: 'Projects',
-          innerRadiusRatio: 0.6 // Ensure this is set to create the donut hole
-        });
-        
-        const svgElement = donutChart.render();
-        projectPassFailChart.appendChild(svgElement);
+
+        try {
+          const donutChart = new DonutChart(projectRatioData, {
+            width: 400,
+            height: 300,
+            colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
+            showLabels: true,
+            showPercentages: true,
+            showLegend: true,
+            showTotal: true,
+            totalLabel: 'Projects',
+            innerRadiusRatio: 0.6, // Ensure this is set to create the donut hole
+          });
+
+          const svgElement = donutChart.render();
+          projectPassFailChart.appendChild(svgElement);
+        } catch (error) {
+          console.error('Error rendering pass/fail chart:', error);
+          projectPassFailChart.innerHTML = '<p>Error rendering chart</p>';
+        }
       } else {
         projectPassFailChart.innerHTML = '<p>No pass/fail data available</p>';
       }
@@ -269,30 +283,31 @@ async function loadProfileData() {
     // Create XP progress graph
     const xpGraph = document.getElementById('xpGraph');
     if (xpGraph) {
-      const xpData = userData.xp?.map((x) => ({
-        createdAt: x.createdAt,
-        amount: x.amount || 0,
-      })) || [];
+      const xpData =
+        userData.xp?.map((x) => ({
+          createdAt: x.createdAt,
+          amount: x.amount || 0,
+        })) || [];
 
       if (xpData.length > 0) {
         // Sort data by date
         xpData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        
+
         // Calculate cumulative XP
         let cumulativeXP = 0;
-        const cumulativeXpData = xpData.map(item => {
+        const cumulativeXpData = xpData.map((item) => {
           cumulativeXP += item.amount;
           return {
             createdAt: item.createdAt,
-            amount: cumulativeXP
+            amount: cumulativeXP,
           };
         });
-        
+
         xpGraph.innerHTML = ''; // Clear any existing content
         const lineGraph = new LineGraph(cumulativeXpData, {
           width: 600,
           height: 300,
-          padding: 40
+          padding: 40,
         });
         const svgElement = lineGraph.render();
         xpGraph.appendChild(svgElement);
@@ -321,7 +336,7 @@ async function loadProfileData() {
           width: 600,
           height: 300,
           padding: 40,
-          colors: ['#3e3eff', '#4caf50']
+          colors: ['#3e3eff', '#4caf50'],
         });
         const svgElement = barGraph.render();
         projectGraph.appendChild(svgElement);

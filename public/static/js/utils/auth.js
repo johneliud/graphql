@@ -9,3 +9,7 @@ export function isLoggedIn() {
 export function getJwt() {
   return localStorage.getItem('jwt');
 }
+
+export function setJwt(token) {
+  localStorage.setItem('jwt', token);
+}

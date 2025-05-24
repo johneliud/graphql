@@ -1,4 +1,4 @@
-export const GRAPHQL_QUERY = `query{
+export const USER_PROFILE_QUERY = `query{
   user{
 #     profile details
     id

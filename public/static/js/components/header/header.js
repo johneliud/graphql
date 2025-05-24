@@ -1,4 +1,6 @@
-export async function renderHeader() {
+import { toggleTheme } from '../../utils/theme.js';
+
+export function renderHeader() {
   const app = document.getElementById('app');
   const header = document.createElement('header');
   header.className = 'header';
@@ -23,4 +25,8 @@ export async function renderHeader() {
   document.getElementById('homeLink').addEventListener('click', (e) => {
     e.preventDefault();
   });
+  
+  // Add event listener for theme toggler
+  const themeToggler = document.getElementById('themeToggler');
+  themeToggler.addEventListener('click', toggleTheme);
 }

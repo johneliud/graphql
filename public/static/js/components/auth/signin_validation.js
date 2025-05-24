@@ -1,6 +1,8 @@
-import { displayPopup } from '../display_popup.js';
+import { displayPopup } from '../../utils/display_popup.js';
+import { setJwt } from '../../utils/auth.js';
+import { renderProfileView } from '../profile/profile_view.js';
 
-export async function validateSignInFormData() {
+export function validateSignInFormData() {
   const signInForm = document.getElementById('signinForm');
 
   if (!signInForm) {
@@ -32,19 +34,11 @@ export async function validateSignInFormData() {
   signInForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const emailOrUsername = document
-      .getElementById('emailOrUsername')
-      .value.trim();
+    const emailOrUsername = document.getElementById('emailOrUsername').value;
     const password = document.getElementById('password').value;
 
-    // Basic validation
-    if (!emailOrUsername) {
-      displayPopup('Email or Username cannot be empty', false);
-      return;
-    }
-
-    if (!password) {
-      displayPopup('Password cannot be empty', false);
+    if (!emailOrUsername || !password) {
+      displayPopup('Please fill in all fields', false);
       return;
     }
 
@@ -81,26 +75,19 @@ export async function validateSignInFormData() {
         return;
       }
 
+      // Store JWT in localStorage
+      setJwt(data);
+      
+      // Display success message
       displayPopup('Sign in successful!', true);
 
-      const jwt = typeof data === 'string' ? data : data.jwt;      
+      // Redirect to profile page
+      renderProfileView();
 
-      // Store JWT in localStorage
-      if (jwt) {
-        localStorage.setItem('jwt', jwt);
-        
-        // Dispatch event to show profile
-        const app = document.getElementById('app');
-        app.dispatchEvent(new CustomEvent('showProfile'));
-      } else {
-        displayPopup('No JWT received from server', false);
-        if (signInBtn) {
-          signInBtn.disabled = false;
-          signInBtn.textContent = 'Sign In';
-        }
-      }
     } catch (error) {
-      displayPopup(error.message || 'Error during sign in', false);
+      console.error('Error during sign in:', error);
+      displayPopup('An error occurred during sign in. Please try again.', false);
+      
       const signInBtn = document.querySelector('.sign-in-btn');
       if (signInBtn) {
         signInBtn.disabled = false;

@@ -1,4 +1,4 @@
-export async function toggleTheme() {
+export function toggleTheme() {
   const themeToggler = document.getElementById("themeToggler");
   const header = document.getElementById("header");
   const body = document.body;
@@ -8,7 +8,6 @@ export async function toggleTheme() {
     return;
   }
 
-  themeToggler.classList.toggle("active");
   header.classList.toggle("dark-theme");
   body.classList.toggle("dark-theme");
 
@@ -21,15 +20,10 @@ export async function toggleTheme() {
 }
 
 // Apply the saved theme on page load
-document.addEventListener("DOMContentLoaded", () => {
+export function initTheme() {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
-    const themeToggler = document.getElementById("themeToggler");
     const header = document.getElementById("header");
-    
-    if (themeToggler) {
-      themeToggler.classList.add("active");
-    }
     
     if (header) {
       header.classList.add("dark-theme");
@@ -37,4 +31,4 @@ document.addEventListener("DOMContentLoaded", () => {
     
     document.body.classList.add("dark-theme");
   }
-});
+}

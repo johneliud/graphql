@@ -1,12 +1,11 @@
-import { LineGraph, BarGraph, PieChart, DonutChart } from './svg_graphs.js';
-import { GRAPHQL_QUERY } from './graphql_query.js';
-import { displayPopup } from './display_popup.js';
-import { renderSignInView } from './signin/signin_view.js';
-import { validateSignInFormData } from './signin/signin_validation.js';
-import { logout } from './validate_jwt.js';
+import { LineGraph, BarGraph, PieChart, DonutChart } from '../visualizations/svg_graphs.js';
+import { USER_PROFILE_QUERY } from '../../api/queries.js';
+import { fetchGraphQLData } from '../../api/graphql_client.js';
+import { displayPopup } from '../../utils/display_popup.js';
+import { logout } from '../../utils/auth.js';
 
 // Handle profile view rendering
-async function renderProfileView() {
+export async function renderProfileView() {
   const app = document.getElementById('app');
 
   // Remove existing content
@@ -33,7 +32,6 @@ async function renderProfileView() {
     </ul>
   `;
 
-  // Create main content area
   const profileContent = document.createElement('div');
   profileContent.className = 'profile-container';
 
@@ -45,13 +43,11 @@ async function renderProfileView() {
     </div>
   `;
 
-  // Add sidebar and content to app
   app.appendChild(sidebar);
   app.appendChild(profileContent);
 
   // Load profile data after a short delay
   setTimeout(() => {
-    // Replace loading indicator with profile content
     profileContent.innerHTML = `
       <div class="profile-header">
         <h2>Welcome to Your Profile</h2>
@@ -84,7 +80,7 @@ async function renderProfileView() {
           <div class="xp-stats">
             <p><strong>Total XP:</strong> <span id="totalXp">Loading...</span></p>
           </div>
-          <div id="xpGraph"></div>
+          <div id="xpGraph" class="chart-container"></div>
         </div>
 
         <div id="project-stats" class="profile-section">
@@ -93,7 +89,7 @@ async function renderProfileView() {
             <p><strong>Completed Projects:</strong> <span id="completedProjects">Loading...</span></p>
             <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
           </div>
-          <div id="projectGraph"></div>
+          <div id="projectGraph" class="chart-container"></div>
         </div>
         
         <div id="pass-fail-stats" class="profile-section">
@@ -115,7 +111,7 @@ async function renderProfileView() {
         <div id="skills" class="profile-section">
           <h3>Skills</h3>
           <div class="skills-container">
-            <div id="skillsGraph"></div>
+            <div id="skillsGraph" class="chart-container"></div>
           </div>
         </div>
       </div>
@@ -145,70 +141,16 @@ async function renderProfileView() {
       });
     }
 
-    // Load the profile data
     loadProfileData();
   }, 1000);
 }
 
 // Handle profile data loading
 async function loadProfileData() {
-  const jwt = localStorage.getItem('jwt');
-  if (!jwt) {
-    displayPopup('No authentication token found. Please sign in.', false);
-    renderSignInView();
-    validateSignInFormData();
-    return;
-  }
-
   try {
-    const response = await fetch(
-      'https://learn.zone01kisumu.ke/api/graphql-engine/v1/graphql',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwt}`,
-        },
-        body: JSON.stringify({
-          query: GRAPHQL_QUERY,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      displayPopup(error.message || 'Failed to load profile data', false);
-
-      // If unauthorized, clear token and redirect to sign in
-      if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('jwt');
-        renderSignInView();
-        validateSignInFormData();
-      }
-      return;
-    }
-
-    const data = await response.json();
-
-    // Check for GraphQL errors
-    if (data.errors && data.errors.length > 0) {
-      const errorMessage = data.errors[0].message;
-      console.error('GraphQL Error:', errorMessage);
-
-      // If JWT verification failed, clear token and redirect to sign in
-      if (errorMessage.includes('Could not verify JWT')) {
-        localStorage.removeItem('jwt');
-        displayPopup('Session expired. Please sign in again.', false);
-        renderSignInView();
-        validateSignInFormData();
-        return;
-      }
-
-      displayPopup(errorMessage || 'Error in GraphQL response', false);
-      return;
-    }
-
-    if (!data.data || !data.data.user) {
+    const data = await fetchGraphQLData(USER_PROFILE_QUERY);
+    
+    if (!data || !data.data || !data.data.user) {
       displayPopup('No user data found', false);
       return;
     }
@@ -453,16 +395,3 @@ function formatProjectName(name) {
 
   return formattedName;
 }
-
-// Listen for showProfile event
-document.addEventListener('DOMContentLoaded', () => {
-  const app = document.getElementById('app');
-
-  if (app) {
-    app.addEventListener('showProfile', async () => {
-      await renderProfileView();
-    });
-  }
-});
-
-export { renderProfileView };

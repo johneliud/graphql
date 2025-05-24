@@ -1,8 +1,18 @@
-export async function renderSignInView() {
-  const app = document.getElementById("app");
-  const signInContainer = document.createElement("div");
-  signInContainer.className = "signin-container";
-  signInContainer.id = "signInContainer";
+import { validateSignInFormData } from './signin_validation.js';
+
+export function renderSignInView() {
+  const app = document.getElementById('app');
+
+  // Remove existing content
+  const existingContent = document.querySelector(
+    '.signin-container, .profile-container, .about-container, .sidebar, .profile-layout'
+  );
+  if (existingContent) {
+    existingContent.remove();
+  }
+
+  const signInContainer = document.createElement('div');
+  signInContainer.className = 'signin-container';
 
   signInContainer.innerHTML = `
   <p class="message-popup" id="messagePopup"></p>
@@ -37,5 +47,8 @@ export async function renderSignInView() {
         </form>
       </div>
   `;
-  app.appendChild(signInContainer)
+  app.appendChild(signInContainer);
+  
+  // Initialize form validation
+  validateSignInFormData();
 }

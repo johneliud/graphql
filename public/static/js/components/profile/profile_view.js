@@ -29,6 +29,7 @@ export async function renderProfileView() {
       <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
       <li><a href="#completed-projects" class="sidebar-link">Completed Projects</a></li>
+      <li><a href="#current-projects" class="sidebar-link">Current Projects</a></li>
       <li><a href="#skills" class="sidebar-link">Skills</a></li>
     </ul>
   `;
@@ -97,6 +98,13 @@ export async function renderProfileView() {
           <h3>Completed Projects</h3>
           <div class="completed-projects-grid" id="completedProjectsGrid">
             <p>Loading completed projects...</p>
+          </div>
+        </div>
+
+        <div id="current-projects" class="profile-section">
+          <h3>Current Projects</h3>
+          <div class="current-projects-grid" id="currentProjectsGrid">
+            <p>Loading current projects...</p>
           </div>
         </div>
 
@@ -287,6 +295,29 @@ async function loadProfileData() {
         });
       } else {
         completedProjectsGrid.innerHTML = '<p>No completed projects found.</p>';
+      }
+    }
+
+    // Update current projects section
+    const currentProjectsGrid = document.getElementById('currentProjectsGrid');
+    if (currentProjectsGrid) {
+      if (userData.current_projects && userData.current_projects.length > 0) {
+        currentProjectsGrid.innerHTML = '';
+
+        userData.current_projects.forEach((project) => {
+          const projectPath = project.group.path;
+          const projectName = projectPath.split('/').pop(); // Get the last part of the path
+
+          const projectCard = document.createElement('div');
+          projectCard.className = 'project-card current-project';
+          projectCard.innerHTML = `
+            <p>${formatProjectName(projectName)}</p>
+          `;
+
+          currentProjectsGrid.appendChild(projectCard);
+        });
+      } else {
+        currentProjectsGrid.innerHTML = '<p>No current projects found.</p>';
       }
     }
 

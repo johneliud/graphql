@@ -189,7 +189,7 @@ async function loadProfileData() {
       ];
       
       const pieChart = new PieChart(auditRatioData, {
-        width: 400,
+        width: 600,
         height: 300,
         colors: ['#4caf50', '#f44336'], // Green for upvotes, red for downvotes
         showLabels: true,
@@ -208,16 +208,21 @@ async function loadProfileData() {
 
     if (userData.completed_projects && userData.completed_projects.length > 0) {
       userData.completed_projects.forEach(project => {
-        // Assuming there's a status field or some way to determine pass/fail
-        if (project.group.status === 'finished') {
+        // Check if the project has a group with status
+        if (project.group && project.group.status) {
+          if (project.group.status === 'finished') {
+            passCount++;
+          } else if (project.group.status === 'failed') {
+            failCount++;
+          }
+        } else {
+          // If no explicit status, assume it's a pass since it's in completed_projects
           passCount++;
-        } else if (project.group.status === 'failed') {
-          failCount++;
         }
       });
       
-      // If we don't have explicit fail status, assume all completed are passes
-      if (passCount === 0 && failCount === 0) {
+      // If we don't have any projects categorized yet, assume all completed are passes
+      if (passCount === 0 && failCount === 0 && userData.completed_projects.length > 0) {
         passCount = userData.completed_projects.length;
       }
     }
@@ -234,20 +239,27 @@ async function loadProfileData() {
         { label: 'FAIL', value: failCount }
       ];
       
-      const donutChart = new DonutChart(projectRatioData, {
-        width: 400,
-        height: 300,
-        colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
-        showLabels: true,
-        showPercentages: true,
-        showLegend: true,
-        showTotal: true,
-        totalLabel: 'Projects',
-        innerRadiusRatio: 0.6 // Ensure this is set to create the donut hole
-      });
-      
-      projectPassFailChart.innerHTML = '';
-      projectPassFailChart.appendChild(donutChart.render());
+      // Make sure we have at least one project to display
+      if (passCount > 0 || failCount > 0) {
+        projectPassFailChart.innerHTML = ''; // Clear any existing content
+        
+        const donutChart = new DonutChart(projectRatioData, {
+          width: 600,
+          height: 300,
+          colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
+          showLabels: true,
+          showPercentages: true,
+          showLegend: true,
+          showTotal: true,
+          totalLabel: 'Projects',
+          innerRadiusRatio: 0.6 // Ensure this is set to create the donut hole
+        });
+        
+        const svgElement = donutChart.render();
+        projectPassFailChart.appendChild(svgElement);
+      } else {
+        projectPassFailChart.innerHTML = '<p>No pass/fail data available</p>';
+      }
     }
 
     // Update XP statistics
@@ -371,7 +383,7 @@ async function loadProfileData() {
           maxValue: 100, // Fixed maximum value of 100
           gridLines: [0, 25, 50, 75, 100], // Grid lines at 0, 25, 50, 75, 100
           colors: ['#3e3eff', '#4b7bec', '#3867d6', '#4b6584'], // Different colors for variety
-          height: 400, // Taller graph for better visibility
+          height: 600, // Taller graph for better visibility
           barSpacing: 20, // More space between bars
           padding: 60, // Increased padding for better label visibility
         });

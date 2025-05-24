@@ -5,7 +5,7 @@ export class LineGraph {
     this.height = options.height || 300;
     this.padding = options.padding || 40;
     this.showDates = options.showDates !== undefined ? options.showDates : true;
-    this.dateFormat = options.dateFormat || 'short'; // 'short', 'medium', 'long'
+    this.dateFormat = options.dateFormat || 'short';
   }
 
   render() {
@@ -458,6 +458,27 @@ export class DonutChart {
       
       startAngle = endAngle;
     });
+    
+    // Add total in the center if needed
+    if (this.showTotal && total > 0) {
+      const totalText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      totalText.setAttribute('x', centerX);
+      totalText.setAttribute('y', centerY - 10);
+      totalText.setAttribute('text-anchor', 'middle');
+      totalText.setAttribute('font-size', '16px');
+      totalText.setAttribute('font-weight', 'bold');
+      totalText.textContent = total;
+      
+      const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      labelText.setAttribute('x', centerX);
+      labelText.setAttribute('y', centerY + 10);
+      labelText.setAttribute('text-anchor', 'middle');
+      labelText.setAttribute('font-size', '12px');
+      labelText.textContent = this.totalLabel;
+      
+      svg.appendChild(totalText);
+      svg.appendChild(labelText);
+    }
     
     // Add legend if needed
     if (this.showLegend) {

@@ -4,6 +4,8 @@ export class LineGraph {
     this.width = options.width || 600;
     this.height = options.height || 300;
     this.padding = options.padding || 40;
+    this.showDates = options.showDates !== undefined ? options.showDates : true;
+    this.dateFormat = options.dateFormat || 'short'; // 'short', 'medium', 'long'
   }
 
   render() {
@@ -74,6 +76,57 @@ export class LineGraph {
       
       svg.appendChild(circle);
     });
+    
+    // Add y-axis labels (amounts)
+    for (let i = 0; i <= 5; i++) {
+      const y = this.padding + (i / 5) * (this.height - 2 * this.padding);
+      const value = Math.round(maxAmount - (i / 5) * maxAmount);
+      
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', this.padding - 10);
+      text.setAttribute('y', y + 5);
+      text.setAttribute('text-anchor', 'end');
+      text.setAttribute('font-size', '10px');
+      text.textContent = value.toLocaleString();
+      
+      svg.appendChild(text);
+    }
+    
+    // Add x-axis labels (dates) if we have date information
+    if (this.showDates && this.data[0].createdAt) {
+      // Only show a subset of dates to avoid overcrowding
+      const numLabels = Math.min(5, this.data.length);
+      const step = Math.max(1, Math.floor(this.data.length / numLabels));
+      
+      for (let i = 0; i < this.data.length; i += step) {
+        if (i >= this.data.length) break;
+        
+        const x = this.padding + (i / (this.data.length - 1 || 1)) * (this.width - 2 * this.padding);
+        const y = this.height - this.padding + 20;
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '10px');
+        
+        // Format date based on preference
+        const date = new Date(this.data[i].createdAt);
+        let formattedDate;
+        
+        if (this.dateFormat === 'short') {
+          formattedDate = date.toLocaleDateString();
+        } else if (this.dateFormat === 'medium') {
+          formattedDate = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        } else if (this.dateFormat === 'long') {
+          formattedDate = date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        
+        text.textContent = formattedDate;
+        
+        svg.appendChild(text);
+      }
+    }
     
     return svg;
   }
@@ -184,7 +237,7 @@ export class BarGraph {
 export class PieChart {
   constructor(data, options = {}) {
     this.data = data;
-    this.width = options.width || 400;
+    this.width = options.width || 600;
     this.height = options.height || 300;
     this.colors = options.colors || ['#3e3eff', '#4caf50', '#f44336', '#ff9800', '#9c27b0', '#607d8b'];
     this.showLabels = options.showLabels !== undefined ? options.showLabels : true;
@@ -307,7 +360,7 @@ export class PieChart {
 export class DonutChart {
   constructor(data, options = {}) {
     this.data = data;
-    this.width = options.width || 400;
+    this.width = options.width || 600;
     this.height = options.height || 300;
     this.colors = options.colors || ['#3e3eff', '#4caf50', '#f44336', '#ff9800', '#9c27b0', '#607d8b'];
     this.showLabels = options.showLabels !== undefined ? options.showLabels : true;

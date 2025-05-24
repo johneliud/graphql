@@ -257,15 +257,27 @@ async function loadProfileData() {
     // Create XP progress graph
     const xpGraph = document.getElementById('xpGraph');
     if (xpGraph) {
-      const xpData =
-        userData.xp?.map((x) => ({
-          createdAt: x.createdAt,
-          amount: x.amount || 0,
-        })) || [];
+      const xpData = userData.xp?.map((x) => ({
+        createdAt: x.createdAt,
+        amount: x.amount || 0,
+      })) || [];
 
       if (xpData.length > 0) {
+        // Sort data by date
+        xpData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        
+        // Calculate cumulative XP
+        let cumulativeXP = 0;
+        const cumulativeXpData = xpData.map(item => {
+          cumulativeXP += item.amount;
+          return {
+            createdAt: item.createdAt,
+            amount: cumulativeXP
+          };
+        });
+        
         xpGraph.innerHTML = ''; // Clear any existing content
-        const lineGraph = new LineGraph(xpData, {
+        const lineGraph = new LineGraph(cumulativeXpData, {
           width: 600,
           height: 300,
           padding: 40

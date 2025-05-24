@@ -22,13 +22,17 @@ export function toggleTheme() {
 // Apply the saved theme on page load
 export function initTheme() {
   const savedTheme = localStorage.getItem("theme");
+  const header = document.getElementById("header");
+  
   if (savedTheme === "dark") {
-    const header = document.getElementById("header");
-    
     if (header) {
       header.classList.add("dark-theme");
     }
-    
     document.body.classList.add("dark-theme");
+  } else {
+    if (header) {
+      header.classList.remove("dark-theme");
+    }
+    document.body.classList.remove("dark-theme");
   }
 }

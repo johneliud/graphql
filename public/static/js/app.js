@@ -6,10 +6,8 @@ import { renderProfileView } from './components/profile/profile_view.js';
 
 // Initialize the application
 export function initApp() {
-  // Initialize theme based on saved preference
+
   initTheme();
-  
-  // Render the header
   renderHeader();
 
   // Check auth status and render appropriate view
@@ -29,6 +27,9 @@ export function initApp() {
       }
       renderHeader();
       
+      // Re-apply theme after header changes
+      initTheme();
+      
       // If JWT was added (user logged in), show profile
       if (event.newValue) {
         renderProfileView();
@@ -36,6 +37,10 @@ export function initApp() {
         // If JWT was removed (user logged out), show signin
         renderSignInView();
       }
+    }
+    
+    if (event.key === 'theme') {
+      initTheme();
     }
   });
 }

@@ -1,7 +1,6 @@
 import { LineGraph } from '../visualizations/line_graph.js';
 import { BarGraph } from '../visualizations/bar_graph.js';
 import { PieChart } from '../visualizations/pie_chart.js';
-import { DonutChart } from '../visualizations/donut_chart.js';
 import { USER_PROFILE_QUERY } from '../../api/queries.js';
 import { fetchGraphQLData } from '../../api/graphql_client.js';
 import { displayPopup } from '../../utils/display_popup.js';
@@ -29,7 +28,6 @@ export async function renderProfileView() {
       <li><a href="#audit-stats" class="sidebar-link">Audit Statistics</a></li>
       <li><a href="#xp-stats" class="sidebar-link">XP Statistics</a></li>
       <li><a href="#project-stats" class="sidebar-link">Project Statistics</a></li>
-      <li><a href="#pass-fail-stats" class="sidebar-link">Pass/Fail Statistics</a></li>
       <li><a href="#completed-projects" class="sidebar-link">Completed Projects</a></li>
       <li><a href="#skills" class="sidebar-link">Skills</a></li>
     </ul>
@@ -93,15 +91,6 @@ export async function renderProfileView() {
             <p><strong>Current Projects:</strong> <span id="currentProjects">Loading...</span></p>
           </div>
           <div id="projectGraph" class="chart-container"></div>
-        </div>
-        
-        <div id="pass-fail-stats" class="profile-section">
-          <h3>Pass/Fail Statistics</h3>
-          <div class="pass-fail-stats">
-            <p><strong>Passed Projects:</strong> <span id="passedProjects">Loading...</span></p>
-            <p><strong>Failed Projects:</strong> <span id="failedProjects">Loading...</span></p>
-          </div>
-          <div id="projectPassFailChart" class="chart-container"></div>
         </div>
 
         <div id="completed-projects" class="profile-section">
@@ -202,78 +191,6 @@ async function loadProfileData() {
 
       auditRatioChart.innerHTML = '';
       auditRatioChart.appendChild(pieChart.render());
-    }
-
-    // Projects PASS/FAIL ratio
-    // Calculate pass/fail counts from completed projects
-    let passCount = 0;
-    let failCount = 0;
-
-    if (userData.completed_projects && userData.completed_projects.length > 0) {
-      userData.completed_projects.forEach((project) => {
-        // Check if the project has a group with status
-        if (project.group && project.group.status) {
-          if (project.group.status === 'finished') {
-            passCount++;
-          } else if (project.group.status === 'failed') {
-            failCount++;
-          }
-        } else {
-          // If no explicit status, assume it's a pass since it's in completed_projects
-          passCount++;
-        }
-      });
-
-      // If we don't have any projects categorized yet, assume all completed are passes
-      if (
-        passCount === 0 &&
-        failCount === 0 &&
-        userData.completed_projects.length > 0
-      ) {
-        passCount = userData.completed_projects.length;
-      }
-    }
-
-    // Update pass/fail statistics
-    updateElementText('passedProjects', passCount.toString());
-    updateElementText('failedProjects', failCount.toString());
-
-    // Create and render the donut chart for pass/fail ratio
-    const projectPassFailChart = document.getElementById(
-      'projectPassFailChart'
-    );
-    if (projectPassFailChart) {
-      const projectRatioData = [
-        { label: 'PASS', value: passCount },
-        { label: 'FAIL', value: failCount },
-      ];
-
-      // Make sure we have at least one project to display
-      if (passCount > 0 || failCount > 0) {
-        projectPassFailChart.innerHTML = ''; // Clear any existing content
-
-        try {
-          const donutChart = new DonutChart(projectRatioData, {
-            width: 400,
-            height: 300,
-            colors: ['#4caf50', '#f44336'], // Green for pass, red for fail
-            showLabels: true,
-            showPercentages: true,
-            showLegend: true,
-            showTotal: true,
-            totalLabel: 'Projects',
-            innerRadiusRatio: 0.6, // Ensure this is set to create the donut hole
-          });
-
-          const svgElement = donutChart.render();
-          projectPassFailChart.appendChild(svgElement);
-        } catch (error) {
-          console.error('Error rendering pass/fail chart:', error);
-          projectPassFailChart.innerHTML = '<p>Error rendering chart</p>';
-        }
-      } else {
-        projectPassFailChart.innerHTML = '<p>No pass/fail data available</p>';
-      }
     }
 
     // Update XP statistics

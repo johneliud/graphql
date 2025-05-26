@@ -1,0 +1,26 @@
+name: Mirror to Gitea
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Get full history
+
+      - name: Push to Gitea
+        env:
+          GITEA_USERNAME: ${{ secrets.GITEA_USERNAME }}
+          GITEA_PASSWORD: ${{ secrets.GITEA_PASSWORD }}
+        run: |
+          git remote add gitea https://${GITEA_USERNAME}:${GITEA_PASSWORD}@learn.zone01kisumu.ke/git/johnodhiambo0/graphql.git
+          git push --mirror gitea

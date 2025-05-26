@@ -22,5 +22,5 @@ jobs:
           GITEA_USERNAME: ${{ secrets.GITEA_USERNAME }}
           GITEA_PASSWORD: ${{ secrets.GITEA_PASSWORD }}
         run: |
-          git remote add gitea https://${GITEA_USERNAME}:${GITEA_PASSWORD}@learn.zone01kisumu.ke/git/johnodhiambo0/graphql.git
+          git remote add gitea https://${GITEA_USERNAME}:${GITEA_PASSWORD}@learn.zone01kisumu.ke/git/johnodhiambo0/graphql
           git push --mirror gitea
